@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HabitAssistant</string>
+    <string name="userName_L">userName</string>
+    <string name="password_L">password</string>
+</resources>
