@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.view.View;
 
 public class SensorHandler implements SensorEventListener {
 
@@ -16,6 +17,8 @@ public class SensorHandler implements SensorEventListener {
         void onGyroscopeDataChanged(float x, float y, float z);
 
         void onAccelerometerDataChanged(float x, float y, float z);
+
+        void onClick(View v);
     }
 
     private SensorDataListener listener;
