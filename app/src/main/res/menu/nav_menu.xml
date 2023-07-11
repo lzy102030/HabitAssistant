@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/statistics"
+        android:icon="@mipmap/statistics1"
+        android:title="统计" />
+    <item
+        android:id="@+id/schedule"
+        android:icon="@mipmap/calendar1"
+        android:title="日程" />
+    <item
+        android:id="@+id/personal"
+        android:icon="@mipmap/personal1"
+        android:title="个人" />
+</menu>
