@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private String latitude;
     private String longitude;
     private LocationManager locationManager;
-    //绘制图表
-    private LineChart lineChart;
     private ViewPager2 mViewPager;
     private BottomNavigationView mBottomNavigationView;
     private List<Fragment> mData;
@@ -79,11 +77,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         HeConfig.init("HE2307051114281793", "8055206813554fa99ce7e0a115b15683");
         //切换至免费订阅
         HeConfig.switchToDevService();
-        //绘制图表
-//        lineChart = findViewById(R.id.line_chart);
-//        ChartHelper chartHelper = new ChartHelper();
-//        lineChart.setData(chartHelper.createLineChart());
-//        lineChart.invalidate();
 
                 mViewPager = findViewById(R.id.main_viewPager);
         mBottomNavigationView = findViewById(R.id.main_bottomNavigationView);
@@ -294,20 +287,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             }else {
                 return false;
             }
-
-//            switch (item.getItemId()) {
-//                case R.id.statistics:
-//                    //TODO 当点击 Tab 时，ViewPager 也切换到对应的 Fragment
-//                    mViewPager.setCurrentItem(0, true);
-//                    return true;
-//                case R.id.schedule:
-//                    mViewPager.setCurrentItem(1, true);
-//                    return true;
-//                case R.id.personal:
-//                    mViewPager.setCurrentItem(2, true);
-//                    return true;
-//            }
-
         }
     };
     private List<Fragment> initData(){
