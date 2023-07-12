@@ -2,9 +2,10 @@ package com.example.habitassistant;
 
 import static android.content.ContentValues.TAG;
 
-import static com.example.habitassistant.NotitionActivity.CHANNEL_1_ID;
+import static com.example.habitassistant.NotitionActivity.important;
+import static com.example.habitassistant.NotitionActivity.normal;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -12,17 +13,16 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import com.example.habitassistant.NotitionActivity;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -61,18 +61,15 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private NotificationManagerCompat notificationManagerCompat;
     boolean areNotificationsEnabled;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btn_noti=(Button) findViewById(R.id.btn_mes);
+        btn_noti= findViewById(R.id.btn_mes);
 
         //通知
         notificationManagerCompat=NotificationManagerCompat.from(this);
-
-        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
 
         //传感器
         sensorHandler = new SensorHandler(this, this);
@@ -238,20 +235,39 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void Notice1(View view){
         Log.i("MainActivity","提醒按钮1被点击");
 
+        //权限检查与获取
+        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
+        if (!areNotificationsEnabled) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, this.getPackageName());
+            this.startActivity(intent);
+        }
+
+        Intent intent_Main = new Intent(this, MainActivity.class);
+        Intent intent_Notifition = new Intent(this,NotitionActivity.class);
+        PendingIntent pending_Main=PendingIntent.getActivity(this, 0, intent_Main, PendingIntent.FLAG_MUTABLE);
+        PendingIntent pending_Notifition=PendingIntent.getActivity(this, 0, intent_Notifition, PendingIntent.FLAG_MUTABLE);
 
 
-
-
-        Notification notification=new NotificationCompat.Builder(this,CHANNEL_1_ID)
+        long[] vibrationPattern = {500, 500, 500, 500}; //
+        //通知内容
+        Notification notification=new NotificationCompat.Builder(this,important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
                 .setContentTitle("标题1")
                 .setContentText("内容1")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVibrate(vibrationPattern)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setAutoCancel(true)
+                .setContentIntent(pending_Main)
+                .addAction(0,"去关闭",pending_Notifition)
                 .build();
 
+        //显示通知
         notificationManagerCompat.notify(1,notification);
 
     }
@@ -259,14 +275,17 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     public void Notice2(View view){
         Log.i("MainActivity","提醒按钮2被点击");
 
-        Notification notification=new NotificationCompat.Builder(this,CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.baseline_smartphone_24)
+
+        Notification notification=new NotificationCompat.Builder(this,normal)
+                .setSmallIcon(R.drawable.baseline_looks_two_24)
                 .setContentTitle("看这")
                 .setContentText("给爷爬")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setAutoCancel(true)
                 .build();
 
-        notificationManagerCompat.notify(2,notification);
+
+        notificationManagerCompat.notify(1,notification);
 
     }
 }
