@@ -2,4 +2,6 @@
     <string name="app_name">HabitAssistant</string>
     <string name="userName_L">userName</string>
     <string name="password_L">password</string>
+    <string name="btn_mes">弹出提醒</string>
+    <string name="mes_2">通知2</string>
 </resources>

@@ -2,17 +2,30 @@ package com.example.habitassistant;
 
 import static android.content.ContentValues.TAG;
 
+import static com.example.habitassistant.NotitionActivity.CHANNEL_1_ID;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import com.example.habitassistant.NotitionActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.habitassistant.utils.ScreenStatusChecker;
 import com.example.habitassistant.utils.SensorHandler;
@@ -36,16 +49,31 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private double accelerZ;
     private boolean screenStatus;
 
+    private Button btn_noti;
+
     private String weather;
     private String windScale;
     private String windSpeed;
     private String latitude;
     private String longitude;
     private LocationManager locationManager;
+
+    private NotificationManagerCompat notificationManagerCompat;
+    boolean areNotificationsEnabled;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        btn_noti=(Button) findViewById(R.id.btn_mes);
+
+        //通知
+        notificationManagerCompat=NotificationManagerCompat.from(this);
+
+        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
+
         //传感器
         sensorHandler = new SensorHandler(this, this);
         //屏幕是否亮
@@ -134,10 +162,10 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         double number = Double.parseDouble(latitude);
         String lat = (int) number + "." + String.format("%02d", (int) ((number - (int) number) * 100));
         double number1 = Double.parseDouble(longitude);
-        String lon = (int) number + "." + String.format("%02d", (int) ((number - (int) number) * 100));
+        String lon = (int) number1 + "." + String.format("%02d", (int) ((number1 - (int) number1) * 100));
 
         String xy=lat+","+lon;
-        Log.i("MainActivity",xy);
+//        Log.i("MainActivity",xy);
         QWeather.getWeatherNow(MainActivity.this, xy, Lang.ZH_HANS, Unit.METRIC,
                 new QWeather.OnResultWeatherNowListener() {
                     @Override
@@ -207,6 +235,38 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             Log.i("Permission", "传感器为空");
             Log.i("Permission", String.valueOf(location));
         }
+
+    }
+
+    public void Notice1(View view){
+        Log.i("MainActivity","提醒按钮1被点击");
+
+
+
+
+
+        Notification notification=new NotificationCompat.Builder(this,CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.baseline_smartphone_24)
+                .setContentTitle("标题1")
+                .setContentText("内容1")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+
+        notificationManagerCompat.notify(1,notification);
+
+    }
+
+    public void Notice2(View view){
+        Log.i("MainActivity","提醒按钮2被点击");
+
+        Notification notification=new NotificationCompat.Builder(this,CHANNEL_1_ID)
+                .setSmallIcon(R.drawable.baseline_smartphone_24)
+                .setContentTitle("看这")
+                .setContentText("给爷爬")
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .build();
+
+        notificationManagerCompat.notify(2,notification);
 
     }
 }
