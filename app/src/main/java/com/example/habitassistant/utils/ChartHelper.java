@@ -1,5 +1,7 @@
 package com.example.habitassistant.utils;
 
+import android.graphics.Color;
+
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -15,16 +17,14 @@ import java.util.List;
 
 public class ChartHelper {
 
-    public BarData createBarChart() {
-        List<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(0, 30));
-        entries.add(new BarEntry(1, 80));
-        entries.add(new BarEntry(2, 60));
-        entries.add(new BarEntry(3, 50));
-        // More entries...
-
-        BarDataSet dataSet = new BarDataSet(entries, "Label");
+    public BarData createBarChart(List<BarEntry> entries, String statue) {
+        BarDataSet dataSet = new BarDataSet(entries, "今日统计");
+        //设置颜色
+        dataSet.setColors(new int[]{Color.parseColor("#04a6be"),}, 255);
+        //设置标签
+        dataSet.setStackLabels(new String[]{statue});
         BarData barData = new BarData(dataSet);
+
         return barData;
     }
 
@@ -44,13 +44,19 @@ public class ChartHelper {
     public PieData createPieChart() {
         List<PieEntry> entries = new ArrayList<>();
         entries.add(new PieEntry(30, "Label 1"));
-        entries.add(new PieEntry(25, "Label 2"));
+        entries.add(new PieEntry(35, "Label 2"));
         entries.add(new PieEntry(45, "Label 3"));
         // More entries...
 
         PieDataSet dataSet = new PieDataSet(entries, "Label");
         PieData pieData = new PieData(dataSet);
         return pieData;
+    }
+
+    public MyXAxisValueFormatter getXvalue() {
+        String[] xValues = new String[]{"0:00", "3:00", "6:00", "9:00", "12:00", "15:00", "18:00", "21:00", "24:00"};
+        MyXAxisValueFormatter formatter = new MyXAxisValueFormatter(xValues);
+        return formatter;
     }
 }
 
