@@ -13,56 +13,24 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="@string/hello_blank_fragment"
-            android:id="@+id/compare"/>
-        <RadioGroup
-            android:id="@+id/radioGroup"
+            android:text="活动"
+            android:id="@+id/compare"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/btnDatePicker"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/study"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="学习"
-                android:checked="true"/>
-
-            <RadioButton
-                android:id="@+id/sport"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="运动"/>
-            <RadioButton
-                android:id="@+id/transport"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="通勤"/>
-            <RadioButton
-                android:id="@+id/sleep"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="睡眠"/>
-            <RadioButton
-                android:id="@+id/eating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="用餐"/>
-            <RadioButton
-                android:id="@+id/phone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="摸鱼"/>
-        </RadioGroup>
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/barChart"
+            android:layout_height="50dp"
+            android:text="Select Date"
+            android:gravity="center"/>
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="10dp"/>
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="280dp"
             android:layout_marginTop="10dp"/>
     </LinearLayout>
 
