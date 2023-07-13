@@ -3,6 +3,7 @@ package com.example.habitassistant;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.icu.util.Calendar;
 import android.os.Build;
 import android.util.Log;
 
@@ -28,7 +29,7 @@ public class NotitionActivity extends Application {
                     NotificationManager.IMPORTANCE_HIGH
             );
             channel1.setDescription("这是重要通道");
-            channel1.enableVibration(true); // 可选：禁用通知震动
+            channel1.enableVibration(true); // 可选：允许通知震动
 
             //通道2设置
             NotificationChannel channel2=new NotificationChannel(
@@ -48,7 +49,6 @@ public class NotitionActivity extends Application {
             Log.i("MainActivity","版本号小了");
         }
     }
-
 
 
 

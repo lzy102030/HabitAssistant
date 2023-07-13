@@ -14,9 +14,11 @@ import androidx.core.app.NotificationManagerCompat;
 import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -59,7 +61,11 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private LocationManager locationManager;
 
     private NotificationManagerCompat notificationManagerCompat;
+
+    private NotitionActivity notitionActivity;
     boolean areNotificationsEnabled;
+
+    private int nid=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                     public void onSuccess(WeatherNowBean weatherNowBean) {
                         //先判断返回的status是否正确，当status正确时获取数据，若status不正确，可查看status对应的Code值找到原因
                         if (Code.OK == weatherNowBean.getCode()) {
-                            WeatherNowBean.NowBaseBean now = weatherNowBean.getNow();
+//                            WeatherNowBean.NowBaseBean now = weatherNowBean.getNow();
                             weather = String.valueOf(weatherNowBean.getNow().getText());
                             windScale = String.valueOf(weatherNowBean.getNow().getWindScale());
                             windSpeed = String.valueOf(weatherNowBean.getNow().getWindSpeed());
@@ -237,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void Notice1(View view){
-        Log.i("MainActivity","提醒按钮1被点击");
+//        Log.i("MainActivity","提醒按钮1被点击");
 
         //权限检查与获取
         areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
@@ -249,43 +255,64 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         }
 
         Intent intent_Main = new Intent(this, MainActivity.class);
-        Intent intent_Notifition = new Intent(this,NotitionActivity.class);
-        PendingIntent pending_Main=PendingIntent.getActivity(this, 0, intent_Main, PendingIntent.FLAG_MUTABLE);
-        PendingIntent pending_Notifition=PendingIntent.getActivity(this, 0, intent_Notifition, PendingIntent.FLAG_MUTABLE);
+        Intent intent_Action = new Intent(this,ActionActivity.class);
+
+        intent_Action.setAction("打开");
+        intent_Action.addCategory("静音模式");
+        intent_Action.putExtra("nid",nid);
+        intent_Action.setPackage(String.valueOf(this));
+
+        //转到主页
+        PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+                intent_Main, PendingIntent.FLAG_MUTABLE);
+        //覆盖前一个通知
+//        PendingIntent pending_Action=PendingIntent.getActivity(this, 0,
+//                intent_Action, PendingIntent.FLAG_MUTABLE);
+        //不覆盖前一个通知
+        PendingIntent pending_Action1=PendingIntent.getBroadcast(this, nid,
+                intent_Action, PendingIntent.FLAG_MUTABLE);
 
 
-        long[] vibrationPattern = {500, 500, 500, 500}; //
+
+        //震动时长设置
+        long[] vibrationPattern = {500, 500, 500, 500};
+
         //通知内容
         Notification notification=new NotificationCompat.Builder(this,important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
-                .setContentTitle("标题1")
-                .setContentText("内容1")
+                .setContentTitle("图书馆预订")
+                .setContentText("请去vx上面把图书馆的位置定了")
                 .setVibrate(vibrationPattern)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setAutoCancel(true)
                 .setContentIntent(pending_Main)
-                .addAction(0,"去关闭",pending_Notifition)
+                .addAction(0,"去关闭",pending_Action1)
+                .setWhen(System.currentTimeMillis())
+                .setGroup("myGroup")
                 .build();
 
         //显示通知
-        notificationManagerCompat.notify(1,notification);
+        notificationManagerCompat.notify(nid++,notification);
 
     }
 
     public void Notice2(View view){
         Log.i("MainActivity","提醒按钮2被点击");
 
+        Intent intent_Main = new Intent(this, MainActivity.class);
+        PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+                intent_Main, PendingIntent.FLAG_MUTABLE);
 
         Notification notification=new NotificationCompat.Builder(this,normal)
                 .setSmallIcon(R.drawable.baseline_looks_two_24)
                 .setContentTitle("看这")
                 .setContentText("给爷爬")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentIntent(pending_Main)
                 .setAutoCancel(true)
                 .build();
 
-
-        notificationManagerCompat.notify(1,notification);
+        notificationManagerCompat.notify(2,notification);
 
     }
 }

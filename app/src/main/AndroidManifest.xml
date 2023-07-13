@@ -31,6 +31,8 @@
         android:minSdkVersion="30" />
     <!--    获取震动权限-->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!--    勿扰模式权限-->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
 
     <application
@@ -56,6 +58,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".ActionActivity"
+            android:exported="true">
+            <intent-filter>
+
+                <action android:name="打开"/>
+                <action android:name="关闭"/>
+
+                <category android:name="静音模式"/>
+                <category android:name="应用管理"/>
+                <category android:name="闹钟管理"/>
+
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".MainActivity"
