@@ -265,13 +265,13 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         Intent intent_Action1 = new Intent(this,ActionActivity.class);
         Intent intent_Action2 = new Intent(this,ActionActivity.class);
 
-        intent_Action1.setAction("打开微信");
-        intent_Action1.addCategory("应用管理");
+        intent_Action1.setAction("打开");
+        intent_Action1.addCategory("勿扰模式");
         intent_Action1.putExtra("nid",nid);
         intent_Action1.setPackage(String.valueOf(this));
 
         intent_Action2.setAction("关闭");
-        intent_Action2.addCategory("静音模式");
+        intent_Action2.addCategory("勿扰模式");
         intent_Action2.putExtra("nid",nid);
         intent_Action2.setPackage(String.valueOf(this));
 
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         //通知内容
         Notification notification=new NotificationCompat.Builder(this,important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
-                .setContentTitle("静音模式")
+                .setContentTitle("勿扰模式")
                 .setContentText("请选择开启还是关闭")
                 .setVibrate(vibrationPattern)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -314,19 +314,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 //        getAppInfo(this);
 //        openApp(this);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager != null) {
-            if (!notificationManager.isNotificationPolicyAccessGranted()) {
-                // 如果没有权限，请求授权
-                Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-                startActivity(intent);
-                Log.i("MainActivity","勿扰模式申请权限");
-            } else {
-                // 开启勿扰模式
-                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
-                Log.i("MainActivity","勿扰模式开启成功");
-            }
-        }
 
 
     }

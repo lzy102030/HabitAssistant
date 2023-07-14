@@ -20,9 +20,6 @@ import java.util.Objects;
 public class ActionActivity extends BroadcastReceiver {
 
     private static String Tag="RECEIVE CAST";
-
-    private MainActivity mainActivity;
-
     private String action;
     private String category;
 
@@ -39,14 +36,11 @@ public class ActionActivity extends BroadcastReceiver {
         System.out.println(action+"   "+category);
 
         switch (category){
-            case "{静音模式}":
-                Jingying();
-                break;
             case "{应用管理}":
                 appController();
                 break;
-            case "{闹钟管理}":
-
+            case "{勿扰模式}":
+                wuraoController();
                 break;
             default:
                 break;
@@ -56,52 +50,73 @@ public class ActionActivity extends BroadcastReceiver {
 
 
     }
-
-    private void Jingying() {
-        Log.i(Tag, "管理静音模式");
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
-//            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-//            if (audioManager != null) {
-//                if (Objects.equals(action, "打开")) {
+//备用方法
+//    private void Jingying() {
+//        Log.i(Tag, "管理静音模式");
 //
-//                    audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-//                    //           notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
-//
-//
-//                    Intent intent1=new Intent(String.valueOf(context));
-//                    context.startActivity(intent1);
-//                } else {
-//                    audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-//                    //           notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
-//
-//                    Intent intent1=new Intent(String.valueOf(context));
-//                    context.startActivity(intent1);
-//                }
+//        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+//        if (audioManager != null) {
+//            if (Objects.equals(action, "打开")){
+//                //开启静音模式
+//                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+//                Log.i("MainActivity","开启静音模式");
+//            }else {
+//                //关闭静音模式
+//                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+//                Log.i("MainActivity","关闭静音模式");
 //            }
-
-        Intent intent = context.getPackageManager().getLaunchIntentForPackage("com.tencent.mobileqq");
-        if (intent != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }
-
-    }
+//
+//        }else {
+//            Log.i("MainActivity","静音模式控制失败");
+//        }
+//
+//
+//    }
 
     public void appController(){
         Log.i(Tag, "打开应用");
 
-        if (Objects.equals(action, "打开微信")){
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+        switch (action){
+            case "打开微信":
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                break;
+            case "打开音乐":
+
+                break;
+
+            default:
+                Log.i("MainActivity","崩坏三，启动");
+                break;
+            }
+    }
+
+
+    public void wuraoController(){
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            if (!notificationManager.isNotificationPolicyAccessGranted()) {
+                // 如果没有权限，请求授权
+                Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                context.startActivity(intent);
+                Log.i("MainActivity","勿扰模式申请权限");
+            } else {
+                if (Objects.equals(action, "打开")){
+                    // 开启勿扰模式
+                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+                    //Log.i("MainActivity","勿扰模式开启成功");
+                }else {
+                    //关闭勿扰模式
+                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+                    //Log.i("MainActivity","勿扰模式关闭成功");
+                }
+            }
+        }else {
+            Log.i("MainActivity","勿扰模式控制失败");
         }
-
-
-
-
     }
 
 
