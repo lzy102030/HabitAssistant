@@ -1,13 +1,16 @@
 package com.example.habitassistant.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.rgb;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,6 +183,9 @@ public class DayFragment extends Fragment {
         lineChart.getLegend().setFormSize(15);
         lineChart.getLegend().setTextSize(14);
 
+        SharedPreferences sp = getActivity().getSharedPreferences("loginSera",MODE_PRIVATE);
+        String string = sp.getString("token","");
+        Log.i("保存的token",string);
         return rootView;
     }
     private void showDatePicker() {
