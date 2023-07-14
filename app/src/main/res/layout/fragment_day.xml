@@ -18,10 +18,9 @@
             android:gravity="center"/>
         <Button
             android:id="@+id/btnDatePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:text="Select Date"
-            android:gravity="center"/>
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_horizontal"/>
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
             android:layout_width="match_parent"
@@ -32,6 +31,10 @@
             android:layout_width="match_parent"
             android:layout_height="280dp"
             android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:text="q\nw\neq\nw\n\n\\eqe\nqwe\nqwq\nw\neq\nw\nee"/>
     </LinearLayout>
 
 

@@ -21,7 +21,7 @@ import java.util.List;
 public class ChartHelper {
 
     public BarData createBarChart(List<BarEntry> entries, String statue) {
-        BarDataSet dataSet = new BarDataSet(entries, "今日统计");
+        BarDataSet dataSet = new BarDataSet(entries, "本周"+statue+"统计");
         //设置颜色
         dataSet.setColors(new int[]{Color.parseColor("#04a6be"),}, 255);
         //设置标签

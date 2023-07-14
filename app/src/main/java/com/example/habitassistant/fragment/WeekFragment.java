@@ -19,6 +19,7 @@ import com.example.habitassistant.utils.ChartHelper;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieEntry;
 
@@ -108,6 +109,16 @@ public class WeekFragment extends Fragment {
         pieChart.setEntryLabelColor(Color.BLACK);
         pieChart.setEntryLabelTextSize(15);
         pieChart.invalidate();
+
+        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        barChart.getXAxis().setDrawGridLines(false);
+        barChart.getXAxis().setTextSize(15);
+        barChart.getAxisRight().setDrawGridLines(false);
+        barChart.getAxisRight().setEnabled(false);
+        barChart.getDescription().setText("单位：小时");
+        barChart.getDescription().setTextSize(14);
+        barChart.getLegend().setTextSize(15);
+        barChart.getLegend().setFormSize(14);
         //单选响应
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override

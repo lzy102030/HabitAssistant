@@ -85,12 +85,12 @@ public class DayFragment extends Fragment {
         lineChart = rootView.findViewById(R.id.lineChart);
         chartHelper = new ChartHelper();
         //标题栏
-        textView.setTextSize(45);
+        textView.setTextSize(30);
         //日期选择
         btnDatePicker = rootView.findViewById(R.id.btnDatePicker);
         btnDatePicker.setBackgroundColor(WHITE);
         btnDatePicker.setTextColor(BLACK);
-        btnDatePicker.setText(year+"年"+month+"月"+day+"日"+"▼");
+        btnDatePicker.setText(year+"年"+(month+1)+"月"+day+"日"+"▼");
         btnDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,7 +137,8 @@ public class DayFragment extends Fragment {
         //绘制饼状图
         pieChart.setData(chartHelper.createPieChart(pieEntryList));
         pieChart.setBackgroundColor(rgb(232, 234, 237));
-        pieChart.getDescription().setEnabled(false);
+        pieChart.getDescription().setText("单位：小时");
+        pieChart.getDescription().setTextSize(15);
         //实体扇形的空心圆的半径   设置成0时就是一个圆 而不是一个环
         pieChart.setHoleRadius(30);
         //中间半透明白色圆的半径    设置成0时就是隐藏
