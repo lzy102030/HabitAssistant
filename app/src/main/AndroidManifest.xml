@@ -21,6 +21,10 @@
         tools:ignore="ProtectedPermissions" />
     <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="true" />
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
     <!--手机状态-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
@@ -33,6 +37,14 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!--    勿扰模式权限-->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <!--    铃声权限-->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!--    启动权限-->
+    <uses-permission android:name="android.permission.LAUNCHER" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+
+
 
 
     <application

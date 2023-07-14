@@ -13,14 +13,19 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,6 +42,8 @@ import com.qweather.sdk.bean.base.Unit;
 import com.qweather.sdk.bean.weather.WeatherNowBean;
 import com.qweather.sdk.view.HeConfig;
 import com.qweather.sdk.view.QWeather;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorHandler.SensorDataListener{
 
@@ -255,12 +262,18 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         }
 
         Intent intent_Main = new Intent(this, MainActivity.class);
-        Intent intent_Action = new Intent(this,ActionActivity.class);
+        Intent intent_Action1 = new Intent(this,ActionActivity.class);
+        Intent intent_Action2 = new Intent(this,ActionActivity.class);
 
-        intent_Action.setAction("打开");
-        intent_Action.addCategory("静音模式");
-        intent_Action.putExtra("nid",nid);
-        intent_Action.setPackage(String.valueOf(this));
+        intent_Action1.setAction("打开微信");
+        intent_Action1.addCategory("应用管理");
+        intent_Action1.putExtra("nid",nid);
+        intent_Action1.setPackage(String.valueOf(this));
+
+        intent_Action2.setAction("关闭");
+        intent_Action2.addCategory("静音模式");
+        intent_Action2.putExtra("nid",nid);
+        intent_Action2.setPackage(String.valueOf(this));
 
         //转到主页
         PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
@@ -270,9 +283,9 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 //                intent_Action, PendingIntent.FLAG_MUTABLE);
         //不覆盖前一个通知
         PendingIntent pending_Action1=PendingIntent.getBroadcast(this, nid,
-                intent_Action, PendingIntent.FLAG_MUTABLE);
-
-
+                intent_Action1, PendingIntent.FLAG_MUTABLE);
+        PendingIntent pending_Action2=PendingIntent.getBroadcast(this, nid,
+                intent_Action2, PendingIntent.FLAG_MUTABLE);
 
         //震动时长设置
         long[] vibrationPattern = {500, 500, 500, 500};
@@ -280,39 +293,61 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         //通知内容
         Notification notification=new NotificationCompat.Builder(this,important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
-                .setContentTitle("图书馆预订")
-                .setContentText("请去vx上面把图书馆的位置定了")
+                .setContentTitle("静音模式")
+                .setContentText("请选择开启还是关闭")
                 .setVibrate(vibrationPattern)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setAutoCancel(true)
                 .setContentIntent(pending_Main)
-                .addAction(0,"去关闭",pending_Action1)
+                .addAction(0,"去打开",pending_Action1)
+                .addAction(0,"去关闭",pending_Action2)
                 .setWhen(System.currentTimeMillis())
                 .setGroup("myGroup")
                 .build();
 
         //显示通知
         notificationManagerCompat.notify(nid++,notification);
-
     }
 
-    public void Notice2(View view){
+    public void Notice2(View view) throws Exception {
         Log.i("MainActivity","提醒按钮2被点击");
+//        getAppInfo(this);
+//        openApp(this);
 
-        Intent intent_Main = new Intent(this, MainActivity.class);
-        PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
-                intent_Main, PendingIntent.FLAG_MUTABLE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager != null) {
+            if (!notificationManager.isNotificationPolicyAccessGranted()) {
+                // 如果没有权限，请求授权
+                Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                startActivity(intent);
+                Log.i("MainActivity","勿扰模式申请权限");
+            } else {
+                // 开启勿扰模式
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+                Log.i("MainActivity","勿扰模式开启成功");
+            }
+        }
 
-        Notification notification=new NotificationCompat.Builder(this,normal)
-                .setSmallIcon(R.drawable.baseline_looks_two_24)
-                .setContentTitle("看这")
-                .setContentText("给爷爬")
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setContentIntent(pending_Main)
-                .setAutoCancel(true)
-                .build();
-
-        notificationManagerCompat.notify(2,notification);
 
     }
+
+//    private void getAppInfo(Context context) throws Exception{
+//        PackageManager packageManager = context.getPackageManager();
+//        //获取所有安装的app
+//        List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
+//        for(PackageInfo info : installedPackages){
+//            String packageName = info.packageName;//app包名
+//            ApplicationInfo ai = packageManager.getApplicationInfo(packageName, 0);
+//            String appName = (String) packageManager.getApplicationLabel(ai);//获取应用名称
+//            Log.i("MainActivity",appName);
+//        }
+//    }
+//
+//    public static void openApp(Context context) {
+//        Intent intent = new Intent(Intent.ACTION_MAIN);
+//        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        System.out.println("intent: " + intent);
+//        context.startActivity(intent);
+//    }
 }
