@@ -6,6 +6,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
+
 public class AuthInterceptor implements Interceptor {
     private String authToken;
 
@@ -22,4 +23,6 @@ public class AuthInterceptor implements Interceptor {
         return chain.proceed(newRequest);
     }
 }
+
+
 

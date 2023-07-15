@@ -41,6 +41,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        SharedPreferences sp = getSharedPreferences("loginSera",MODE_PRIVATE);
+        String isLogin = sp.getString("isLogin","");
+        //登录检测，已登录不需要重新登录
+//        if(isLogin.equals("1")){
+//            startActivity(new Intent(this,MainActivity.class));
+//            finish();
+//        }
         et_username = findViewById(R.id.et_userName);
         et_password = findViewById(R.id.et_psw);
         btn_login = findViewById(R.id.btn_login);
@@ -98,6 +105,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             Log.i("登录返回", data);
                             SharedPreferences.Editor editor = getSharedPreferences("loginSera", MODE_PRIVATE).edit();
                             editor.putString("token", token);
+                            editor.putString("isLogin","1");
                             editor.commit();
                             intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
