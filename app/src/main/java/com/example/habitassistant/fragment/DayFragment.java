@@ -110,6 +110,27 @@ public class DayFragment extends Fragment {
         pieEntryList = new ArrayList<>();
 
         //设置折线图数据
+//        String statue = "";
+//        while (false){
+//            if(statue.equals("学习")){
+//                List<Entry> entries = new ArrayList<>();
+//                //添加数据
+//                entries.add(new Entry());
+//                LineDataSet lineDataSet = new LineDataSet(entries,"");
+//                lineDataSet.setColor();
+//                lineDataSet.setLineWidth(10);
+//            } else if (statue.equals("睡觉")) {
+//
+//            } else if (statue.equals("吃饭")) {
+//
+//            } else if (statue.equals("玩手机")) {
+//
+//            } else if (statue.equals("运动")) {
+//
+//            }else {
+//
+//            }
+//        }
         studyEntries.add(new Entry(0.0f, 15));
         studyEntries.add(new Entry(2.3f, 15));
         sleepEntries.add(new Entry(2.3f, 15));
@@ -119,12 +140,15 @@ public class DayFragment extends Fragment {
         LineDataSet studySet = new LineDataSet(studyEntries, "学习");
         studySet.setColor(Color.RED);
         studySet.setLineWidth(10);
+        studySet.setDrawValues(false);
         LineDataSet sleepSet = new LineDataSet(sleepEntries, "睡觉");
         sleepSet.setColor(Color.BLUE);
         sleepSet.setLineWidth(10);
+        sleepSet.setDrawValues(false);
         LineDataSet eatingSet = new LineDataSet(eatingEntries,"用餐");
         eatingSet.setColor(Color.BLACK);
         eatingSet.setLineWidth(10);
+        eatingSet.setDrawValues(false);
         dataSets.add(studySet);
         dataSets.add(sleepSet);
         dataSets.add(eatingSet);

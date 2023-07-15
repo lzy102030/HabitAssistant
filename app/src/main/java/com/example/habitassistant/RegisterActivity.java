@@ -12,7 +12,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -28,7 +31,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String inputUsername;
     private String inputPassword;
     private String inputAffirm;
-    private String url = "http://123.57.135.185:8000/auth/register";
+    private String url = "http://123.57.135.185:8000/auth/register/";
+    MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             Log.i("username", inputUsername);
                             Log.i("password", inputPassword);
                             OkHttpClient client = new OkHttpClient();
-                            RequestBody requestBody = new FormBody.Builder()
-                                    .add("username", inputUsername)
-                                    .add("password", inputPassword)
-                                    .build();
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("username", inputUsername);
+                            jsonObject.put("password", inputPassword);
+                            RequestBody requestBody = RequestBody.create(JSON,String.valueOf(jsonObject));
                             Request request = new Request.Builder()
                                     .url(url)
                                     .post(requestBody)
@@ -80,6 +84,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                 bundle.putString("password", inputPassword);
                                 intent.putExtras(bundle);
                                 setResult(Activity.RESULT_OK, intent);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                                 finish();
                             } else {
                                 runOnUiThread(new Runnable() {
@@ -88,7 +98,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                         Toast.makeText(RegisterActivity.this, "注册失败！", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                //Toast.makeText(RegisterActivity.this, "注册失败！", Toast.LENGTH_SHORT).show();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

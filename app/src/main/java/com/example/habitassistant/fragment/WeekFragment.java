@@ -151,11 +151,13 @@ public class WeekFragment extends Fragment {
                         @Override
                         public void run() {
                             try {
-                                OkHttpClient client = new OkHttpClient.Builder()
-                                        .addInterceptor(new AuthInterceptor(token))
-                                        .build();
+//                                OkHttpClient client = new OkHttpClient.Builder()
+//                                        .addInterceptor(new AuthInterceptor(token))
+//                                        .build();
+                                OkHttpClient client = new OkHttpClient();
                                 Request request = new Request.Builder()
                                         .url(url)
+                                        .header("Authorization","Bearer " +token)
                                         .build();
                                 Response response = client.newCall(request).execute();
 
