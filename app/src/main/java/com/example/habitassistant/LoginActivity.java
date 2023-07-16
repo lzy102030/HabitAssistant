@@ -17,8 +17,21 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.CalendarViewEvent;
+import com.example.habitassistant.entity.DayActivityData;
+import com.example.habitassistant.utils.Constant;
+import com.example.habitassistant.utils.OkhttpHelper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -109,6 +122,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             editor.commit();
                             intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
+                            sendRequest("2002-10-16","2024-10-16");
                             finish();
                         } else {
                             runOnUiThread(new Runnable() {
@@ -128,5 +142,46 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             intent = new Intent(LoginActivity.this, RegisterActivity.class);
             register.launch(intent);
         }
+    }
+
+
+
+    private void sendRequest(String start_time,String end_time) {
+        String url = Constant.RMOTE_SERVER+"?start_date="+start_time+"&end_date="+end_time;
+        SharedPreferences sp = this.getSharedPreferences("loginSera", MODE_PRIVATE);
+        String token = sp.getString("token", "");
+        OkhttpHelper.getRequest(url,token ,new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e){
+                Log.i("CalendarView","onFailure:"+e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException{
+                String result = response.body().string();
+                Log.i("Schedule",result);
+                if(response.isSuccessful())
+                {
+                    //回调的方法执行在子线程
+                    Constant.eventList.clear();
+                    List<CalendarViewEvent> events = parseJSONWithGSON(result);
+                    Constant.eventList.addAll(events);
+                    Log.d("result:",result);
+                }
+            }
+        });
+    }
+
+
+    //解析json字符串
+    private  List<CalendarViewEvent> parseJSONWithGSON(String jsonData){
+        Gson gson = new Gson();
+        List<DayActivityData> actList = gson.fromJson(jsonData,new TypeToken<List<DayActivityData>>(){}.getType());
+        List<CalendarViewEvent> events=new ArrayList<>();
+        for(DayActivityData dayActivityData:actList){
+            CalendarViewEvent event=new CalendarViewEvent(dayActivityData.getStart_time(),
+                    dayActivityData.getEnd_time(),dayActivityData.getState());
+            events.add(event);
+        }
+        return events;
     }
 }

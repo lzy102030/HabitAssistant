@@ -11,13 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScheduleAdapter extends FragmentStateAdapter {
-    ArrayList<ScheduleWeekFragment> fragments;
+    ArrayList<Fragment> fragments=new ArrayList<>();
     private List<String> mData = new ArrayList<>();
 
     public ScheduleAdapter(@NonNull FragmentActivity fragmentActivity, List<String> mData, ArrayList<ScheduleWeekFragment>fragments) {
         super(fragmentActivity);
         this.mData = mData;
-        this.fragments=fragments;
+
+        this.fragments.add( com.example.habitassistant.ScheduleMgrWidgt.ScheduleAgendaFragment.newInstance());
+        this.fragments.add( com.example.habitassistant.ScheduleMgrWidgt.ScheduleMonthFragment.newInstance());
+        this.fragments.add( com.example.habitassistant.ScheduleMgrWidgt.ScheduleWeekFragment.newInstance());
+        this.fragments.add( com.example.habitassistant.ScheduleMgrWidgt.ScheduleDayFragment.newInstance());
+        this.fragments.add( com.example.habitassistant.ScheduleMgrWidgt.ScheduleAgendaFragment.newInstance());
     }
 
     @NonNull
@@ -25,7 +30,7 @@ public class ScheduleAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         //TODO 待修正
         if(position==0){
-            return com.example.habitassistant.ScheduleMgrWidgt.ScheduleWeekFragment.newInstance();
+            return com.example.habitassistant.ScheduleMgrWidgt.ScheduleDayFragment.newInstance();
         }else if (position==1){
             return com.example.habitassistant.ScheduleMgrWidgt.ScheduleMonthFragment.newInstance();
         } else if (position==2) {
@@ -35,6 +40,7 @@ public class ScheduleAdapter extends FragmentStateAdapter {
         }else {
             return com.example.habitassistant.ScheduleMgrWidgt.ScheduleAgendaFragment.newInstance();
         }
+//        return this.fragments.get(position);
 
     }
 
