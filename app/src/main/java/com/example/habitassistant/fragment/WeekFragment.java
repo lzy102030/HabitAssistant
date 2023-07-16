@@ -1,20 +1,28 @@
 package com.example.habitassistant.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.graphics.Color.rgb;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.habitassistant.R;
+import com.example.habitassistant.RegisterActivity;
+import com.example.habitassistant.utils.AuthInterceptor;
 import com.example.habitassistant.utils.ChartHelper;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -26,6 +34,12 @@ import com.github.mikephil.charting.data.PieEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,7 +59,7 @@ public class WeekFragment extends Fragment {
     List<BarEntry> eatingEntries;
     List<BarEntry> phoneEntries;
     List<PieEntry> pieEntryList;
-
+    private String url = "http://123.57.135.185:8000/users/me";
     public WeekFragment() {
         // Required empty public constructor
     }
@@ -130,6 +144,34 @@ public class WeekFragment extends Fragment {
                 } else if (Objects.equals(radioButton.getText(), "运动")) {
                     barChart.setData(chartHelper.createBarChart(sportEntries, "运动"));
                     barChart.invalidate();
+                    SharedPreferences sp = getActivity().getSharedPreferences("loginSera",MODE_PRIVATE);
+                    String token = sp.getString("token","");
+                    Log.i("保存的token",token);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+//                                OkHttpClient client = new OkHttpClient.Builder()
+//                                        .addInterceptor(new AuthInterceptor(token))
+//                                        .build();
+                                OkHttpClient client = new OkHttpClient();
+                                Request request = new Request.Builder()
+                                        .url(url)
+                                        .header("Authorization","Bearer " +token)
+                                        .build();
+                                Response response = client.newCall(request).execute();
+
+                                Log.i("带token测试", response.body().string());
+                                if (response.code() == 200) {
+                                    Log.i("成功", "成功");
+                                } else {
+                                    Log.i("失败","失败");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 } else if (Objects.equals(radioButton.getText(), "通勤")) {
                     barChart.setData(chartHelper.createBarChart(transportEntries, "通勤"));
                     barChart.invalidate();
@@ -147,4 +189,5 @@ public class WeekFragment extends Fragment {
         });
         return rootView;
     }
+
 }

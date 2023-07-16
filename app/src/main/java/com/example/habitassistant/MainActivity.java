@@ -22,6 +22,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -130,9 +131,9 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         mViewPager.setAdapter(new MyFragmentStateAdapter(this, initData()));
         mViewPager.setOffscreenPageLimit(1); //设置页面缓存的个数，默认1个
         //设置底部导航栏 item 点击的监听
-//        mBottomNavigationView.setOnItemSelectedListener(onItemSelectedListener);
-//        // 设置 ViewPager2 页面改变的监听
-//        mViewPager.registerOnPageChangeCallback(onPageChangeCallback);
+        mBottomNavigationView.setOnItemSelectedListener(onItemSelectedListener);
+        // 设置 ViewPager2 页面改变的监听
+        mViewPager.registerOnPageChangeCallback(onPageChangeCallback);
     }
 
 

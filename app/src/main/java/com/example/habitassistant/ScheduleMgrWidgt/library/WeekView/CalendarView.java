@@ -1,6 +1,7 @@
 package com.example.habitassistant.ScheduleMgrWidgt.library.WeekView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,10 +23,18 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
+import com.example.habitassistant.MainActivity;
 import com.example.habitassistant.R;
 import com.example.habitassistant.utils.UnitUtils;
+import com.google.gson.Gson;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CalendarView extends LinearLayout {
 
@@ -253,4 +263,8 @@ public class CalendarView extends LinearLayout {
     public void setOnEventLongPressListener(OnEventLongPressListener listener) {
         eventLongPressListener = listener;
     }
+
+
+
+
 }
