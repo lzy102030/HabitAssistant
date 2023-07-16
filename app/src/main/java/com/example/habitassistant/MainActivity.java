@@ -6,6 +6,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.LocusId;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -27,6 +28,15 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.PoiInfo;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.example.habitassistant.fragment.PersonalFragment;
 import com.example.habitassistant.fragment.ScheduleFragment;
 import com.example.habitassistant.fragment.StatisticsFragment;
@@ -74,9 +84,10 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private NotitionActivity notitionActivity;
     boolean areNotificationsEnabled;
 
-    String info;
+    private String info;
 
     private int nid = 1;
+    private GeoCoder geoCoder;
 
     private ViewPager2 mViewPager;
     private BottomNavigationView mBottomNavigationView;
@@ -89,6 +100,11 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 在合适的位置初始化百度地图SDK
+        SDKInitializer.setAgreePrivacy(getApplicationContext(), true);
+        SDKInitializer.initialize(getApplicationContext());
+
 
         //通知
         notificationManagerCompat = NotificationManagerCompat.from(this);
@@ -270,14 +286,61 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             }
         }
+
         //输出经纬度
         if (location != null) {
             //获取经纬度
             latitude = String.valueOf(location.getLatitude());
             longitude = String.valueOf(location.getLongitude());
-
             double la = location.getLatitude();
             double lo = location.getLongitude();
+
+            //逆地理编码
+            geoCoder = GeoCoder.newInstance();
+
+            // 设置逆地理编码监听器
+            geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+                @Override
+                public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+                    if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+                        // 逆地理编码失败，处理异常情况
+                        return;
+                    }
+
+                    // 获取逆地理编码结果
+                    List<PoiInfo> poiList = result.getPoiList();
+                    if (poiList != null && poiList.size() > 0) {
+                        PoiInfo poi = poiList.get(0);
+                        String poiName = poi.getName();
+                        String poiAddress = poi.getAddress();
+                        // 处理POI信息...
+
+                        Log.i("MainActivity","poiName:"+poiName);
+                        Log.i("MainActivity","poiAddress:"+poiAddress);
+
+                    }
+                }
+
+                @Override
+                public void onGetGeoCodeResult(GeoCodeResult result) {
+                    // 不处理正向地理编码结果
+                }
+            });
+
+
+            // 构建逆地理编码参数
+            ReverseGeoCodeOption reverseGeoCodeOption = new ReverseGeoCodeOption()
+                    .location(new LatLng(la,lo));
+
+            // 发起逆地理编码
+            geoCoder.reverseGeoCode(reverseGeoCodeOption);
+
+            // 释放逆地理编码实例
+            geoCoder.destroy();
+
+
+
+
             Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
             try {
                 // 获取经纬度对于的位置
@@ -289,6 +352,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
                 info = address.getAddressLine(1) + // 获取省市县(区)
                         address.getAddressLine(2);  // 获取镇号(地址名称)
+                System.out.println(info);
 
                 Intent intent=new Intent(this,NotificationSendActiivity.class);
                 intent.putExtra("latitude",la);

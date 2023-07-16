@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.habitassistant">
 
     <!-- 获取wifi和联网的权限 -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -89,6 +90,10 @@
         <activity android:name=".NotificationSendActiivity"
             android:exported="true">
         </activity>
+
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="oa8nv9FFS9a0IlUEXAqNqzUwQysfaWO1"/>
 
     </application>
 
