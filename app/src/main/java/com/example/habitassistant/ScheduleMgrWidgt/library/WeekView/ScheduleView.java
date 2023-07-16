@@ -48,6 +48,14 @@ public class ScheduleView extends View {
 
     private String TAG = "ScheduleView";
 
+    private static int COLOSET[]={
+            Color.rgb(248, 127, 108),   //红色----睡觉
+            Color.rgb(133, 210, 131),   //绿色----学习
+            Color.rgb(90, 220, 222),    //蓝色----摸鱼
+            Color.rgb(249, 181, 84),    //黄色----通勤
+            Color.rgb(152, 118, 170),   //紫色----吃饭
+            Color.rgb(170, 130, 63),    //棕色----运动
+    };
     public static int VIEWTYPE_WEEK = 0;
     public static int VIEWTYPE_DAY = 1;
     public static int DEFAULT_EVENT_COLOR = Color.rgb(174, 208, 238);
@@ -95,10 +103,10 @@ public class ScheduleView extends View {
     private int mDayBackgroundColor = Color.rgb(245, 245, 245);
     //未来时间段的背景画笔
     private Paint mFutureBackgroundPaint=new Paint();
-    private int mFutureBackgroundColor = Color.rgb(252, 252, 252);
+    private int mFutureBackgroundColor = Color.rgb(239, 248, 255);
     //已经过去的时间段背景画笔
     private Paint mPastBackgroundPaint=new Paint();
-    private int mPastBackgroundColor = Color.rgb(244, 244, 244);
+    private int mPastBackgroundColor = Color.rgb(245, 245, 245);
 
 
 //    private val mFutureWeekendBackgroundPaint: Paint by lazy { Paint() }
@@ -339,7 +347,7 @@ public class ScheduleView extends View {
         //下面的参数暂时不开放设置
         mAllDayEventHeight =  UnitUtils.dip2px(context,50);
         mHeaderRowPadding =  UnitUtils.dip2px(context,8);
-        mColumnGap =  UnitUtils.dip2px(context,0);
+        mColumnGap =  UnitUtils.dip2px(context,2);
         mHeaderTextGap =  UnitUtils.dip2px(context,5);
         mHeaderColumnPadding =  UnitUtils.dip2px(context,10);
         mEventTextColor = Color.WHITE;
@@ -505,9 +513,7 @@ public class ScheduleView extends View {
                 float beforeNow = (now.get(Calendar.HOUR_OF_DAY) + now.get(Calendar.MINUTE) / 60.0f) * mHourHeight;
                 canvas.drawRect(start, startY, finalStartPixel[0] + mWidthPerDay, startY + beforeNow, mPastBackgroundPaint);
                 canvas.drawRect(start, startY + beforeNow, finalStartPixel[0] + mWidthPerDay, (float)getHeight(), mFutureBackgroundPaint);
-            }
-
-            if(date.before(new Date())){
+            }else if(date.before(new Date())){
                 canvas.drawRect(start, startY, finalStartPixel[0] + mWidthPerDay, (float)getHeight(), mPastBackgroundPaint);
             }else{
                 canvas.drawRect(start, startY, finalStartPixel[0] + mWidthPerDay,(float)getHeight(), mFutureBackgroundPaint);
@@ -889,10 +895,29 @@ public class ScheduleView extends View {
             for (ArrayList<CalendarViewEvent> column : columns) {
                 if (column.size() >= i + 1) {
                     CalendarViewEvent event = column.get(i);
+                    event.color=COLOSET[(int)((i+j)%4)];
+                    if(event.name!=null){
+                        if(event.name.equals("睡觉")){
+                            event.color=COLOSET[0];
+                        } else if (event.name.equals("学习")) {
+                            event.color=COLOSET[1];
+                        } else if (event.name.equals("摸鱼")) {
+                            event.color=COLOSET[2];
+                        } else if (event.name.equals("通勤")) {
+                            event.color=COLOSET[3];
+                        }else if (event.name.equals("吃饭")) {
+                            event.color=COLOSET[4];
+                        }else if (event.name.equals("运动")) {
+                            event.color=COLOSET[5];
+                        }
+                    }
                     ScheduleViewEventDrawBO eventRect = new ScheduleViewEventDrawBO(event);
                     if (!eventRect.event.isAllDay) {
                         eventRect.width = 1f / columns.size();
                         eventRect.left = j / columns.size();
+
+                        int i1 = eventRect.event.startTime.get(Calendar.HOUR_OF_DAY);
+                        int i2 = eventRect.event.startTime.get(Calendar.MINUTE);
                         eventRect.top = (float) (eventRect.event.startTime.get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.startTime.get(Calendar.MINUTE));
                         eventRect.bottom = (float)(eventRect.event.endTime.get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.endTime.get(Calendar.MINUTE));
                     } else {// 全天事件 还有 跨天事件 是在头部 多个事件重叠是纵向排列
