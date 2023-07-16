@@ -121,6 +121,7 @@ public class ActionActivity extends BroadcastReceiver {
             if (!notificationManager.isNotificationPolicyAccessGranted()) {
                 // 如果没有权限，请求授权
                 Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
                 Log.i("MainActivity","勿扰模式申请权限");
             } else {

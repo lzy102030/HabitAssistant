@@ -27,7 +27,6 @@ import java.util.Objects;
 
 public class NotificationSendActiivity extends AppCompatActivity {
 
-
     private NotificationManagerCompat notificationManagerCompat;
     private Intent intent;
 
@@ -65,7 +64,7 @@ public class NotificationSendActiivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_personal);
+        //setContentView(R.layout.fragment_personal);
         switch1=findViewById(R.id.switch1);
         switch2=findViewById(R.id.switch2);
         switch3=findViewById(R.id.switch3);

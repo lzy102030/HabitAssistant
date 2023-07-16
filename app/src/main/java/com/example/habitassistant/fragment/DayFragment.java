@@ -93,7 +93,6 @@ public class DayFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_day, container, false);
         textView = rootView.findViewById(R.id.compare);
 
-
         chartHelper = new ChartHelper();
         //标题栏
         textView.setTextSize(30);

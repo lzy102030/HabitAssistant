@@ -354,11 +354,11 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                         address.getAddressLine(2);  // 获取镇号(地址名称)
                 System.out.println(info);
 
-                Intent intent=new Intent(this,NotificationSendActiivity.class);
-                intent.putExtra("latitude",la);
-                intent.putExtra("longitude",lo);
-                intent.putExtra("info",info);
-                startActivity(intent);
+//                Intent intent=new Intent(this,NotificationSendActiivity.class);
+//                intent.putExtra("latitude",la);
+//                intent.putExtra("longitude",lo);
+//                intent.putExtra("info",info);
+//                startActivity(intent);
 
             } catch (IOException e) {
                 e.printStackTrace();
