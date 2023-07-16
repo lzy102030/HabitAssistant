@@ -1,7 +1,6 @@
 package com.example.habitassistant;
 
-import android.Manifest;
-import android.app.Activity;
+
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -9,13 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.AudioManager;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -48,8 +41,12 @@ public class ActionActivity extends BroadcastReceiver {
             default:
                 break;
         }
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(intent.getIntExtra("nid", 0));
+        if (intent.getIntExtra("nid", 0)!=0){
+            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(intent.getIntExtra("nid", 0));
+            System.out.println("通知清除");
+        }
+
     }
 
 //备用方法
@@ -123,6 +120,7 @@ public class ActionActivity extends BroadcastReceiver {
                 Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
+
                 Log.i("MainActivity","勿扰模式申请权限");
             } else {
                 if (Objects.equals(action, "打开")){
