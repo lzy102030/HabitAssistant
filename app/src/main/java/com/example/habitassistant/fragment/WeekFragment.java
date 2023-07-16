@@ -168,12 +168,7 @@ public class WeekFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         // 在这里更新Fragment的UI
-                                        //设
-                                        //
-                                        //
-                                        //
-                                        //
-                                        // 置横坐标值
+                                        //设置横坐标值
                                         barChart.getXAxis().setValueFormatter(chartHelper.getWeekXvalue());
                                         barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
                                         barChart.getXAxis().setDrawGridLines(false);

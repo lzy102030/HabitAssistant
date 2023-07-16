@@ -121,6 +121,44 @@ public class DayFragment extends Fragment {
         //绘制当天
         drawLineChart(rootView, day);
         drawPieChart(rootView, day);
+        //获取建议
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OkHttpClient client = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .url(url2)
+                            .header("Authorization", "Bearer " + token)
+                            .build();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            if (response.isSuccessful()) {
+                                pieChart = rootView.findViewById(R.id.pieChart);
+                                final String responseData = response.body().string();
+                                txtRecommend = responseData;
+                                // 使用Activity的runOnUiThread方法切回主线程
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // 在这里更新Fragment的UI
+                                        //绘制饼状图
+                                        recommend.setText(txtRecommend);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         return rootView;
     }
@@ -364,7 +402,6 @@ public class DayFragment extends Fragment {
                                         pieChart.getLegend().setTextSize(14);
                                         pieChart.setEntryLabelColor(Color.BLACK);
                                         pieChart.setEntryLabelTextSize(15);
-
                                         pieChart.invalidate();
                                     }
                                 });
