@@ -177,7 +177,7 @@ public class PersonalFragment extends Fragment {
 
             if (getin==true) {
                 //通知内容
-                Notification notification = new NotificationCompat.Builder(requireContext(), "important")
+                Notification notification = new NotificationCompat.Builder(requireContext(), important)
                         .setSmallIcon(R.drawable.baseline_smartphone_24)
                         .setContentTitle("自动打开勿扰模式")
                         .setContentText("您已进入教学区，已帮您打开勿扰模式")
@@ -192,7 +192,7 @@ public class PersonalFragment extends Fragment {
                 //显示通知
                 notificationManagerCompat.notify(wurao_nid, notification);
             } else if (getin==false){
-                Notification notification = new NotificationCompat.Builder(requireContext(), "important")
+                Notification notification = new NotificationCompat.Builder(requireContext(), important)
                         .setSmallIcon(R.drawable.baseline_smartphone_24)
                         .setContentTitle("自动关闭勿扰模式")
                         .setContentText("您已离开教学区，已帮您关闭勿扰模式")
@@ -232,7 +232,7 @@ public class PersonalFragment extends Fragment {
         long[] vibrationPattern = {500, 500, 500, 500};
 
         //通知内容
-        Notification notification = new NotificationCompat.Builder(requireContext(), "important")
+        Notification notification = new NotificationCompat.Builder(requireContext(), important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
                 .setContentTitle("定时提醒")
                 .setContentText("已经到了图书馆预订位置时间，请打开微信去预订座位")
@@ -267,7 +267,7 @@ public class PersonalFragment extends Fragment {
         long[] vibrationPattern = {500, 500, 500, 500};
 
         //通知内容
-        Notification notification = new NotificationCompat.Builder(requireContext(), "important")
+        Notification notification = new NotificationCompat.Builder(requireContext(), important)
                 .setSmallIcon(R.drawable.baseline_smartphone_24)
                 .setContentTitle("休息提醒")
                 .setContentText("你已经很辛苦了，请听点音乐，放松一下吧")
