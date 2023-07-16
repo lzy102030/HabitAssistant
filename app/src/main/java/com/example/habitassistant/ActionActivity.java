@@ -8,12 +8,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.List;
 import java.util.Objects;
 
 
@@ -42,11 +45,20 @@ public class ActionActivity extends BroadcastReceiver {
             case "{勿扰模式}":
                 wuraoController();
                 break;
+            case "{到达地点}":
+                arriveLocation();
+                break;
             default:
                 break;
         }
         NotificationManager manager=(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(intent.getIntExtra("nid",1));
+
+
+    }
+
+    private void arriveLocation() {
+        Log.i(Tag, "到达地点");
 
 
     }
@@ -73,18 +85,36 @@ public class ActionActivity extends BroadcastReceiver {
 //
 //    }
 
-    public void appController(){
+    private void appController(){
         Log.i(Tag, "打开应用");
 
         switch (action){
             case "打开微信":
+            {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
-                break;
-            case "打开音乐":
+            }
+            break;
+            case "打开音乐": {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+//        intent.setDataAndType(Uri.parse("file:///path/to/your/music/file"), "audio/*");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
+                PackageManager packageManager = context.getPackageManager();
+                List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+
+                if (!activities.isEmpty()) {
+                    // 创建选择器Intent
+                    Intent chooserIntent = Intent.createChooser(intent, "选择音乐播放器");
+                    chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(chooserIntent);
+                } else {
+                    // 没有找到支持的音乐播放器应用程序
+                    Log.i("MainActivity","没有相应程序");
+                }
+            }
                 break;
 
             default:
@@ -94,7 +124,7 @@ public class ActionActivity extends BroadcastReceiver {
     }
 
 
-    public void wuraoController(){
+    private void wuraoController(){
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {

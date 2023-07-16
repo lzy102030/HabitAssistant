@@ -1,5 +1,6 @@
 package com.example.habitassistant;
 
+import static android.app.Application.getProcessName;
 import static android.content.ContentValues.TAG;
 
 import static com.example.habitassistant.NotitionActivity.important;
@@ -25,10 +26,14 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.icu.util.Calendar;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.habitassistant.fragment.PersonalFragment;
 import com.example.habitassistant.fragment.ScheduleFragment;
@@ -55,10 +61,12 @@ import com.qweather.sdk.bean.weather.WeatherNowBean;
 import com.qweather.sdk.view.HeConfig;
 import com.qweather.sdk.view.QWeather;
 
+import java.io.IOException;
 import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorHandler.SensorDataListener{
 
@@ -87,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private NotitionActivity notitionActivity;
     boolean areNotificationsEnabled;
 
+    String info;
+
     private int nid=1;
 
     private ViewPager2 mViewPager;
@@ -99,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        btn_noti= findViewById(R.id.btn_mes);
 
         //通知
         notificationManagerCompat=NotificationManagerCompat.from(this);
@@ -169,7 +177,11 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             @Override
             public void run() {
                 screenStatus = screenStatusChecker.isScreenOn();
-                getGPS();
+                try {
+                    getGPS();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 getTheater();
                 // 检查并打印屏幕状态
 //                if (screenStatusChecker.isScreenOn()) {
@@ -248,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     }
 
     //GPS
-    public void getGPS() {
+    public void getGPS() throws IOException {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -278,6 +290,26 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             //获取经纬度
             latitude = String.valueOf(location.getLatitude());
             longitude = String.valueOf(location.getLongitude());
+
+            double la=location.getLatitude();
+            double lo=location.getLongitude();
+            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+            try {
+                // 获取经纬度对于的位置
+                // getFromLocation(纬度, 经度, 最多获取的位置数量)
+                List<Address> addresses = geocoder.getFromLocation(la, lo, 1);
+                // 得到第一个经纬度位置解析信息
+                Address address = addresses.get(0);
+                // 获取到详细的当前位置
+                // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
+                info = address.getAddressLine(0) + // 获取国家名称
+                        address.getAddressLine(1) + // 获取省市县(区)
+                        address.getAddressLine(2);  // 获取镇号(地址名称)
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
         } else {
             Log.i("Permission", "传感器为空");
             Log.i("Permission", String.valueOf(location));
@@ -345,89 +377,67 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     public void Notice1(View view){
 //        Log.i("MainActivity","提醒按钮1被点击");
 
+
+//        sendActiivity.n_openvx();
+//        sendActiivity.n_wurao();
+//        sendActiivity.n_openmusic();
+       // sendActiivity.n_Location("图书馆");
+
         //权限检查与获取
-        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
-        if (!areNotificationsEnabled) {
-            Intent intent = new Intent();
-            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, this.getPackageName());
-            this.startActivity(intent);
-        }
-
-        Intent intent_Main = new Intent(this, MainActivity.class);
-        Intent intent_Action1 = new Intent(this,ActionActivity.class);
-        Intent intent_Action2 = new Intent(this,ActionActivity.class);
-
-        intent_Action1.setAction("打开");
-        intent_Action1.addCategory("勿扰模式");
-        intent_Action1.putExtra("nid",nid);
-        intent_Action1.setPackage(String.valueOf(this));
-
-        intent_Action2.setAction("关闭");
-        intent_Action2.addCategory("勿扰模式");
-        intent_Action2.putExtra("nid",nid);
-        intent_Action2.setPackage(String.valueOf(this));
-
-        //转到主页
-        PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
-                intent_Main, PendingIntent.FLAG_MUTABLE);
-        //覆盖前一个通知
-//        PendingIntent pending_Action=PendingIntent.getActivity(this, 0,
-//                intent_Action, PendingIntent.FLAG_MUTABLE);
-        //不覆盖前一个通知
-        PendingIntent pending_Action1=PendingIntent.getBroadcast(this, nid,
-                intent_Action1, PendingIntent.FLAG_MUTABLE);
-        PendingIntent pending_Action2=PendingIntent.getBroadcast(this, nid,
-                intent_Action2, PendingIntent.FLAG_MUTABLE);
-
-        //震动时长设置
-        long[] vibrationPattern = {500, 500, 500, 500};
-
-        //通知内容
-        Notification notification=new NotificationCompat.Builder(this,important)
-                .setSmallIcon(R.drawable.baseline_smartphone_24)
-                .setContentTitle("勿扰模式")
-                .setContentText("请选择开启还是关闭")
-                .setVibrate(vibrationPattern)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setAutoCancel(true)
-                .setContentIntent(pending_Main)
-                .addAction(0,"去打开",pending_Action1)
-                .addAction(0,"去关闭",pending_Action2)
-                .setWhen(System.currentTimeMillis())
-                .setGroup("myGroup")
-                .build();
-
-        //显示通知
-        notificationManagerCompat.notify(nid++,notification);
-    }
-
-    public void Notice2(View view) throws Exception {
-        Log.i("MainActivity","提醒按钮2被点击");
-//        getAppInfo(this);
-//        openApp(this);
-
-
-
-    }
-
-//    private void getAppInfo(Context context) throws Exception{
-//        PackageManager packageManager = context.getPackageManager();
-//        //获取所有安装的app
-//        List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
-//        for(PackageInfo info : installedPackages){
-//            String packageName = info.packageName;//app包名
-//            ApplicationInfo ai = packageManager.getApplicationInfo(packageName, 0);
-//            String appName = (String) packageManager.getApplicationLabel(ai);//获取应用名称
-//            Log.i("MainActivity",appName);
+//        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
+//        if (!areNotificationsEnabled) {
+//            Intent intent = new Intent();
+//            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+//            intent.putExtra(Settings.EXTRA_APP_PACKAGE, this.getPackageName());
+//            this.startActivity(intent);
 //        }
-//    }
 //
-//    public static void openApp(Context context) {
-//        Intent intent = new Intent(Intent.ACTION_MAIN);
-//        intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        System.out.println("intent: " + intent);
-//        context.startActivity(intent);
-//    }
+//        Intent intent_Main = new Intent(this, MainActivity.class);
+//        Intent intent_Action1 = new Intent(this,ActionActivity.class);
+//        Intent intent_Action2 = new Intent(this,ActionActivity.class);
+//
+//        intent_Action1.setAction("打开");
+//        intent_Action1.addCategory("勿扰模式");
+//        intent_Action1.putExtra("nid",nid);
+//        intent_Action1.setPackage(String.valueOf(this));
+//
+//        intent_Action2.setAction("关闭");
+//        intent_Action2.addCategory("勿扰模式");
+//        intent_Action2.putExtra("nid",nid);
+//        intent_Action2.setPackage(String.valueOf(this));
+//
+//        //转到主页
+//        PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+//                intent_Main, PendingIntent.FLAG_MUTABLE);
+//        //覆盖前一个通知
+////        PendingIntent pending_Action=PendingIntent.getActivity(this, 0,
+////                intent_Action, PendingIntent.FLAG_MUTABLE);
+//        //不覆盖前一个通知
+//        PendingIntent pending_Action1=PendingIntent.getBroadcast(this, nid,
+//                intent_Action1, PendingIntent.FLAG_MUTABLE);
+//        PendingIntent pending_Action2=PendingIntent.getBroadcast(this, nid,
+//                intent_Action2, PendingIntent.FLAG_MUTABLE);
+//
+//        //震动时长设置
+//        long[] vibrationPattern = {500, 500, 500, 500};
+//
+//        //通知内容
+//        Notification notification=new NotificationCompat.Builder(this,important)
+//                .setSmallIcon(R.drawable.baseline_smartphone_24)
+//                .setContentTitle("勿扰模式")
+//                .setContentText("请选择开启还是关闭")
+//                .setVibrate(vibrationPattern)
+//                .setPriority(NotificationCompat.PRIORITY_MAX)
+//                .setAutoCancel(true)
+//                .setContentIntent(pending_Main)
+//                .addAction(0,"去打开",pending_Action1)
+//                .addAction(0,"去关闭",pending_Action2)
+//                .setWhen(System.currentTimeMillis())
+//                .setGroup("myGroup")
+//                .build();
+//
+//        //显示通知
+//        notificationManagerCompat.notify(nid++,notification);
+    }
+
 }
