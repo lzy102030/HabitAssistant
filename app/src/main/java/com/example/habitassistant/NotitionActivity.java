@@ -5,18 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.icu.util.Calendar;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class NotitionActivity extends AppCompatActivity {
+public class NotitionActivity extends Application {
     public static final String important="important";
     public static final String normal="normal";
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate() {
+        super.onCreate();
 
         creatNotificationChannels();
     }

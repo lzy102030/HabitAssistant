@@ -119,7 +119,10 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 
 
         //通知
-        notificationManagerCompat = NotificationManagerCompat.from(this);
+        notificationManagerCompat=NotificationManagerCompat.from(this);
+
+        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
+
         //传感器
         sensorHandler = new SensorHandler(this, this);
         //屏幕是否亮

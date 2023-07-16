@@ -11,10 +11,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keep class com.baidu.** {*;}
--keep class vi.com.** {*;}
--keep class com.baidu.vi.** {*;}
--dontwarn com.baidu.**
+
+#-keep class com.baidu.** {*;}
+#-keep class vi.com.** {*;}
+#-keep class com.baidu.vi.** {*;}
+#-dontwarn com.baidu.**
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
