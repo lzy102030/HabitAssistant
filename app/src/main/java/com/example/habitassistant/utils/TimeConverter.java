@@ -1,9 +1,14 @@
 package com.example.habitassistant.utils;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class TimeConverter {
     public static float convertTime(String iso8601Str) {
@@ -72,5 +77,21 @@ public class TimeConverter {
         }
 
         return 1;
+    }
+
+    public static float getHour(int minutes) {
+        return (float) minutes / 3600;
+    }
+
+    public static String getTime(){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS'Z'", Locale.getDefault());
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        Date currentTime = Calendar.getInstance().getTime();
+        return sdf.format(currentTime);
+    }
+    public static String getDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Date currentDate = Calendar.getInstance().getTime();
+        return sdf.format(currentDate);
     }
 }

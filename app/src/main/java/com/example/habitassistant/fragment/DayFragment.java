@@ -56,6 +56,8 @@ import okhttp3.Response;
  */
 public class DayFragment extends Fragment {
     private TextView textView;
+    private TextView recommend;
+    private String txtRecommend;
     //绘制图表
     private ChartHelper chartHelper;
     private PieChart pieChart;
@@ -70,6 +72,9 @@ public class DayFragment extends Fragment {
     private Button btnDatePicker;
     private String url = "http://192.168.105.225:8000/users/me/states";
     private String url1 = "http://192.168.105.225:8000/users/me/statistics";
+    private String url2 = "http://192.168.105.225:8000/users/me/states/recommendation";
+    SharedPreferences sp;
+    String token;
 
     public DayFragment() {
         // Required empty public constructor
@@ -92,8 +97,9 @@ public class DayFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_day, container, false);
         textView = rootView.findViewById(R.id.compare);
-
-
+        recommend = rootView.findViewById(R.id.recommend);
+        textView.setText("当前状态：学习");
+        recommend.setText("来自ChatGPT的建议！");
         chartHelper = new ChartHelper();
         //标题栏
         textView.setTextSize(30);
@@ -105,34 +111,68 @@ public class DayFragment extends Fragment {
         btnDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePicker();
+                showDatePicker(rootView);
             }
         });
-        SharedPreferences sp = getActivity().getSharedPreferences("loginSera", MODE_PRIVATE);
-        String token = sp.getString("token", "");
+        sp = getActivity().getSharedPreferences("loginSera", MODE_PRIVATE);
+        token = sp.getString("token", "");
 
         //请求获取数据，填入每个list
-        dataSets = new ArrayList<>();
-        pieEntryList = new ArrayList<>();
+        //绘制当天
+        drawLineChart(rootView, day);
+        drawPieChart(rootView, day);
 
+        return rootView;
+    }
+
+    private void showDatePicker(View rootView) {
+        // 获取当前日期
+//        Calendar c = Calendar.getInstance();
+//        int year = c.get(Calendar.YEAR);
+//        int month = c.get(Calendar.MONTH);
+//        int day = c.get(Calendar.DAY_OF_MONTH);
+        // 创建日期选择器对话框
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int years, int months, int dayOfMonth) {
+                // 处理选定的日期
+                // 在这里可以将选定的日期传递给Activity或进行其他处理
+                // year: 年份
+                // month: 月份（注意：0表示1月，11表示12月）
+                // dayOfMonth: 日期
+                Log.i("选择的日期", String.valueOf(dayOfMonth));
+                drawLineChart(rootView, dayOfMonth);
+                drawPieChart(rootView, dayOfMonth);
+                btnDatePicker.setText(years + "年" + (months + 1) + "月" + dayOfMonth + "日" + "▼");
+                day = dayOfMonth;
+            }
+        }, year, month, day);
+
+        // 显示日期选择器对话框
+        datePickerDialog.show();
+    }
+
+    private void drawLineChart(View rootView, int chosenDay) {
+        dataSets = new ArrayList<>();
         //设置折线图数据
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     OkHttpClient client = new OkHttpClient();
-                    //url = url + "?start_date=2023-7-"+day+"&end_date=2023-7-"+day;
-                    url = url + "?start_date=2023-7-10&end_date=2023-7-10";
+                    url = "http://192.168.105.225:8000/users/me/states?start_date=2023-7-" + chosenDay + "&end_date=2023-7-" + chosenDay;
+                    Log.i("url",url);
+                    //url = url + "?start_date=2023-7-10&end_date=2023-7-10";
                     Request request = new Request.Builder()
                             .url(url)
                             .header("Authorization", "Bearer " + token)
                             .build();
+                    Log.i("token", token);
                     client.newCall(request).enqueue(new Callback() {
                         @Override
                         public void onFailure(@NonNull Call call, @NonNull IOException e) {
                             e.printStackTrace();
                         }
-
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                             if (response.isSuccessful()) {
@@ -259,18 +299,22 @@ public class DayFragment extends Fragment {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Log.i("警告", String.valueOf(e));
                 }
             }
         }).start();
+    }
 
+    private void drawPieChart(View rootView, int chosenDay) {
+        pieEntryList = new ArrayList<>();
         //饼状图数据
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     OkHttpClient client = new OkHttpClient();
-                    //url = url + "?start_date=2023-7-"+day+"&end_date=2023-7-"+day;
-                    url1 = url1 + "?start_date=2023-7-10&end_date=2023-7-10";
+                    url1 = "http://192.168.105.225:8000/users/me/statistics?start_date=2023-7-" + chosenDay + "&end_date=2023-7-" + chosenDay;
+                    //url1 = url1 + "?start_date=2023-7-10&end_date=2023-7-10";
                     Request request = new Request.Builder()
                             .url(url1)
                             .header("Authorization", "Bearer " + token)
@@ -280,7 +324,6 @@ public class DayFragment extends Fragment {
                         public void onFailure(@NonNull Call call, @NonNull IOException e) {
                             e.printStackTrace();
                         }
-
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                             if (response.isSuccessful()) {
@@ -296,9 +339,7 @@ public class DayFragment extends Fragment {
                                     JSONObject jsonObject = null;
                                     try {
                                         jsonObject = jsonArray.getJSONObject(i);
-                                        Log.i("array",responseData);
-                                        Log.i("time",jsonObject.getString("total_time"));
-                                        pieEntryList.add(new PieEntry(Float.parseFloat(jsonObject.getString("total_time")), jsonObject.getString("state")));
+                                        pieEntryList.add(new PieEntry(TimeConverter.getHour(jsonObject.getInt("total_time")), jsonObject.getString("state")));
                                     } catch (JSONException e) {
                                         throw new RuntimeException(e);
                                     }
@@ -309,6 +350,7 @@ public class DayFragment extends Fragment {
                                     public void run() {
                                         // 在这里更新Fragment的UI
                                         //绘制饼状图
+                                        pieChart.setData(chartHelper.createPieChart(pieEntryList));
                                         pieChart.setBackgroundColor(rgb(232, 234, 237));
                                         pieChart.getDescription().setText("单位：小时");
                                         pieChart.getDescription().setTextSize(15);
@@ -322,7 +364,7 @@ public class DayFragment extends Fragment {
                                         pieChart.getLegend().setTextSize(14);
                                         pieChart.setEntryLabelColor(Color.BLACK);
                                         pieChart.setEntryLabelTextSize(15);
-                                        pieChart.setData(chartHelper.createPieChart(pieEntryList));
+
                                         pieChart.invalidate();
                                     }
                                 });
@@ -334,29 +376,5 @@ public class DayFragment extends Fragment {
                 }
             }
         }).start();
-
-        return rootView;
-    }
-
-    private void showDatePicker() {
-        // 获取当前日期
-//        Calendar c = Calendar.getInstance();
-//        int year = c.get(Calendar.YEAR);
-//        int month = c.get(Calendar.MONTH);
-//        int day = c.get(Calendar.DAY_OF_MONTH);
-        // 创建日期选择器对话框
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                // 处理选定的日期
-                // 在这里可以将选定的日期传递给Activity或进行其他处理
-                // year: 年份
-                // month: 月份（注意：0表示1月，11表示12月）
-                // dayOfMonth: 日期
-            }
-        }, year, month, day);
-
-        // 显示日期选择器对话框
-        datePickerDialog.show();
     }
 }

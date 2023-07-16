@@ -3,31 +3,24 @@ package com.example.habitassistant.fragment;
 import static android.content.Context.MODE_PRIVATE;
 import static android.graphics.Color.rgb;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.habitassistant.R;
-import com.example.habitassistant.RegisterActivity;
-import com.example.habitassistant.utils.AuthInterceptor;
 import com.example.habitassistant.utils.ChartHelper;
+import com.example.habitassistant.utils.TimeConverter;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieEntry;
@@ -43,10 +36,8 @@ import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -67,8 +58,10 @@ public class WeekFragment extends Fragment {
     List<BarEntry> eatingEntries;
     List<BarEntry> phoneEntries;
     List<PieEntry> pieEntryList;
+
     private String url = "http://192.168.105.225:8000/users/me/states";
     private String url1 = "http://192.168.105.225:8000/users/me/statistics";
+
     public WeekFragment() {
         // Required empty public constructor
     }
@@ -90,6 +83,7 @@ public class WeekFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_week, container, false);
         textView = rootView.findViewById(R.id.compare);
+        textView.setTextSize(30);
         radioGroup = rootView.findViewById(R.id.radioGroup);
         ChartHelper chartHelper = new ChartHelper();
         barChart = rootView.findViewById(R.id.barChart);
@@ -98,73 +92,111 @@ public class WeekFragment extends Fragment {
         SharedPreferences sp = getActivity().getSharedPreferences("loginSera", MODE_PRIVATE);
         String token = sp.getString("token", "");
         //显示某行为较前一天的比较
-        textView.setText("周");
+        textView.setText("周统计");
 
         //请求获取数据，填入每个list
+        pieEntryList = new ArrayList<>();
         studyEntries = new ArrayList<>();
         sportEntries = new ArrayList<>();
-        pieEntryList = new ArrayList<>();
         transportEntries = new ArrayList<>();
         sleepEntries = new ArrayList<>();
         phoneEntries = new ArrayList<>();
+        eatingEntries = new ArrayList<>();
+        int[] day = new int[]{0,0,0,0,0,0};
 
         //请求获取柱状图数据
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    OkHttpClient client = new OkHttpClient();
-//                    //url = url + "?start_date=2023-7-"+day+"&end_date=2023-7-"+day;
-//                    url1 = url1 + "?start_date=2023-7-10&end_date=2023-7-10";
-//                    Request request = new Request.Builder()
-//                            .url(url1)
-//                            .header("Authorization", "Bearer " + token)
-//                            .build();
-//                    client.newCall(request).enqueue(new Callback() {
-//                        @Override
-//                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                        @Override
-//                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-//                            if (response.isSuccessful()) {
-//                                pieChart = rootView.findViewById(R.id.pieChart);
-//                                final String responseData = response.body().string();
-//                                JSONArray jsonArray = null;
-//                                try {
-//                                    jsonArray = new JSONArray(responseData);
-//                                } catch (JSONException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                                for (int i = 0; i < jsonArray.length(); i++) {
-//                                    JSONObject jsonObject = null;
-//                                    try {
-//                                        jsonObject = jsonArray.getJSONObject(i);
-//                                    } catch (JSONException e) {
-//                                        throw new RuntimeException(e);
-//                                    }
-//                                }
-//                                // 使用Activity的runOnUiThread方法切回主线程
-//                                getActivity().runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        // 在这里更新Fragment的UI
-//
-//                                    }
-//                                });
-//                            }
-//                        }
-//                    });
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-        for (int i = 0; i < 7; i++) {
-            studyEntries.add(new BarEntry(i, 10 * i));
-            sportEntries.add(new BarEntry(i, 10 * i));
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OkHttpClient client = new OkHttpClient();
+                    //url = url + "?start_date=2023-7-"+day+"&end_date=2023-7-"+day;
+                    url1 = url1 + "?start_date=2023-7-10&end_date=2023-7-16";
+                    Request request = new Request.Builder()
+                            .url(url1)
+                            .header("Authorization", "Bearer " + token)
+                            .build();
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            if (response.isSuccessful()) {
+                                barChart = rootView.findViewById(R.id.barChart);
+                                final String responseData = response.body().string();
+                                JSONArray jsonArray = null;
+                                int minutes = 0;
+                                String state = "";
+                                try {
+                                    jsonArray = new JSONArray(responseData);
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject jsonObject = null;
+                                    try {
+                                        jsonObject = jsonArray.getJSONObject(i);
+                                        state = jsonObject.getString("state");
+                                        minutes = jsonObject.getInt("total_time");
+                                    } catch (JSONException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    if (state.equals("学习")) {
+                                        studyEntries.add(new BarEntry(day[0], TimeConverter.getHour(minutes)));
+                                        day[0]++;
+                                    } else if (state.equals("运动")) {
+                                        sportEntries.add(new BarEntry(day[1], TimeConverter.getHour(minutes)));
+                                        day[1]++;
+                                    } else if (state.equals("通勤")) {
+                                        transportEntries.add(new BarEntry(day[2], TimeConverter.getHour(minutes)));
+                                        day[2]++;
+                                    } else if (state.equals("睡觉")) {
+                                        sleepEntries.add(new BarEntry(day[3], TimeConverter.getHour(minutes)));
+                                        day[3]++;
+                                    } else if (state.equals("吃饭")) {
+                                        eatingEntries.add(new BarEntry(day[4], TimeConverter.getHour(minutes)));
+                                        day[4]++;
+                                    } else {
+                                        phoneEntries.add(new BarEntry(day[5], TimeConverter.getHour(minutes)));
+                                        day[5]++;
+                                    }
+                                }
+                                // 使用Activity的runOnUiThread方法切回主线程
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // 在这里更新Fragment的UI
+                                        //设
+                                        //
+                                        //
+                                        //
+                                        //
+                                        // 置横坐标值
+                                        barChart.getXAxis().setValueFormatter(chartHelper.getWeekXvalue());
+                                        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                                        barChart.getXAxis().setDrawGridLines(false);
+                                        barChart.getXAxis().setTextSize(15);
+                                        barChart.getAxisRight().setDrawGridLines(false);
+                                        barChart.getAxisRight().setEnabled(false);
+                                        barChart.getDescription().setText("单位：小时");
+                                        barChart.getDescription().setPosition(1000,50);
+                                        barChart.getDescription().setTextSize(14);
+                                        barChart.getLegend().setTextSize(15);
+                                        barChart.getLegend().setFormSize(14);
+                                        barChart.setData(chartHelper.createBarChart(studyEntries, "学习"));
+                                        barChart.invalidate();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
         //请求获取饼状图数据
         new Thread(new Runnable() {
             @Override
@@ -198,7 +230,7 @@ public class WeekFragment extends Fragment {
                                     JSONObject jsonObject = null;
                                     try {
                                         jsonObject = jsonArray.getJSONObject(i);
-                                        pieEntryList.add(new PieEntry(Float.parseFloat(jsonObject.getString("total_time")), jsonObject.getString("state")));
+                                        pieEntryList.add(new PieEntry(TimeConverter.getHour(jsonObject.getInt("total_time")),jsonObject.getString("state")));
                                     } catch (JSONException e) {
                                         throw new RuntimeException(e);
                                     }
@@ -233,19 +265,6 @@ public class WeekFragment extends Fragment {
             }
         }).start();
 
-
-        //设置横坐标值
-        barChart.getXAxis().setValueFormatter(chartHelper.getWeekXvalue());
-
-        barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        barChart.getXAxis().setDrawGridLines(false);
-        barChart.getXAxis().setTextSize(15);
-        barChart.getAxisRight().setDrawGridLines(false);
-        barChart.getAxisRight().setEnabled(false);
-        barChart.getDescription().setText("单位：小时");
-        barChart.getDescription().setTextSize(14);
-        barChart.getLegend().setTextSize(15);
-        barChart.getLegend().setFormSize(14);
         //单选响应
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -257,8 +276,6 @@ public class WeekFragment extends Fragment {
                 } else if (Objects.equals(radioButton.getText(), "运动")) {
                     barChart.setData(chartHelper.createBarChart(sportEntries, "运动"));
                     barChart.invalidate();
-                    SharedPreferences sp = getActivity().getSharedPreferences("loginSera",MODE_PRIVATE);
-                    String token = sp.getString("token","");
                 } else if (Objects.equals(radioButton.getText(), "通勤")) {
                     barChart.setData(chartHelper.createBarChart(transportEntries, "通勤"));
                     barChart.invalidate();
@@ -277,7 +294,4 @@ public class WeekFragment extends Fragment {
         return rootView;
     }
 
-    public void drawBarChart(){
-
-    }
 }
