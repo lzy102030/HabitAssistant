@@ -2,9 +2,10 @@ package com.example.habitassistant.utils;
 
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 
-public class MyXAxisValueFormatter implements IAxisValueFormatter {
+public class MyXAxisValueFormatter extends ValueFormatter implements IAxisValueFormatter {
     private String[] mValues;
 
     public MyXAxisValueFormatter(String[] values) {
