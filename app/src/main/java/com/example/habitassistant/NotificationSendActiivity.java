@@ -22,11 +22,19 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.util.Objects;
+
 
 public class NotificationSendActiivity extends AppCompatActivity {
 
 
     private NotificationManagerCompat notificationManagerCompat;
+    private Intent intent;
+
+    private double latitude;
+    private double longitude;
+    private String info_old;
+    private String info_new;
 
     private int jiaoxuelou_state=1;
     private int tushuguan_state=1;
@@ -64,18 +72,34 @@ public class NotificationSendActiivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_personal);
-        switch1.findViewById(R.id.switch1);
-        switch2.findViewById(R.id.switch2);
-        switch3.findViewById(R.id.switch3);
-        switch4.findViewById(R.id.switch4);
-        switch5.findViewById(R.id.switch5);
-        button.findViewById(R.id.button);
+        switch1=findViewById(R.id.switch1);
+        switch2=findViewById(R.id.switch2);
+        switch3=findViewById(R.id.switch3);
+        switch4=findViewById(R.id.switch4);
+        switch5=findViewById(R.id.switch5);
+        button=findViewById(R.id.button);
 
         //通知
         notificationManagerCompat=NotificationManagerCompat.from(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             pemissioncheck();
+        }
+
+        intent=getIntent();
+        latitude=intent.getDoubleExtra("latitude",0);
+        longitude=intent.getDoubleExtra("longitude",0);
+        info_new=intent.getStringExtra("info");
+        System.out.println(info_new);
+
+        if (!Objects.equals(info_new, info_old)){
+            info_old=info_new;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                n_wurao();
+            }
+
         }
 
     }
@@ -133,10 +157,10 @@ public class NotificationSendActiivity extends AppCompatActivity {
 //        PendingIntent pending_Action=PendingIntent.getActivity(this, 0,
 //                intent_Action, PendingIntent.FLAG_MUTABLE);
                 //不覆盖前一个通知
-                PendingIntent pending_Action1 = PendingIntent.getBroadcast(this, wurao_nid,
-                        intent_Action1, PendingIntent.FLAG_MUTABLE);
-                PendingIntent pending_Action2 = PendingIntent.getBroadcast(this, wurao_nid,
-                        intent_Action2, PendingIntent.FLAG_MUTABLE);
+//                PendingIntent pending_Action1 = PendingIntent.getBroadcast(this, wurao_nid,
+//                        intent_Action1, PendingIntent.FLAG_MUTABLE);
+//                PendingIntent pending_Action2 = PendingIntent.getBroadcast(this, wurao_nid,
+//                        intent_Action2, PendingIntent.FLAG_MUTABLE);
 
                 //震动时长设置
                 long[] vibrationPattern = {500, 500, 500, 500};
@@ -144,14 +168,14 @@ public class NotificationSendActiivity extends AppCompatActivity {
                 //通知内容
                 Notification notification = new NotificationCompat.Builder(this, important)
                         .setSmallIcon(R.drawable.baseline_smartphone_24)
-                        .setContentTitle("勿扰模式")
-                        .setContentText("请选择开启还是关闭")
+                        .setContentTitle("自动打开勿扰模式")
+                        .setContentText("您已进入教学区，已帮您打开勿扰模式")
                         .setVibrate(vibrationPattern)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true)
                         .setContentIntent(pending_Main)
-                        .addAction(0, "去打开", pending_Action1)
-                        .addAction(0, "去关闭", pending_Action2)
+//                        .addAction(0, "去打开", pending_Action1)
+//                        .addAction(0, "去关闭", pending_Action2)
                         .setWhen(System.currentTimeMillis())
                         .setGroup("myGroup")
                         .build();

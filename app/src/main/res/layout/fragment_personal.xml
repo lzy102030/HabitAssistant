@@ -70,7 +70,6 @@
             android:checked="true"
             android:text="进出教学楼控制勿扰"
             android:thumbTint="@color/blue"
-
             android:trackTint="@color/blue" />
 
         <View

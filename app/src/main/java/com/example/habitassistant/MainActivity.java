@@ -3,7 +3,9 @@ package com.example.habitassistant;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -101,6 +103,12 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         HeConfig.init("HE2307051114281793", "8055206813554fa99ce7e0a115b15683");
         //切换至免费订阅
         HeConfig.switchToDevService();
+
+        try {
+            getGPS();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         mViewPager = findViewById(R.id.main_viewPager);
         mBottomNavigationView = findViewById(R.id.main_bottomNavigationView);
@@ -280,9 +288,15 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 Address address = addresses.get(0);
                 // 获取到详细的当前位置
                 // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
-                info = address.getAddressLine(0) + // 获取国家名称
-                        address.getAddressLine(1) + // 获取省市县(区)
+                info = address.getAddressLine(1) + // 获取省市县(区)
                         address.getAddressLine(2);  // 获取镇号(地址名称)
+
+                Intent intent=new Intent(this,NotificationSendActiivity.class);
+                intent.putExtra("latitude",la);
+                intent.putExtra("longitude",lo);
+                intent.putExtra("info",info);
+                startActivity(intent);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
