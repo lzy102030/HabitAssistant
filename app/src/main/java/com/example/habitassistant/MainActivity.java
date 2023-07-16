@@ -1,50 +1,29 @@
 package com.example.habitassistant;
 
-import static android.app.Application.getProcessName;
 import static android.content.ContentValues.TAG;
 
-import static com.example.habitassistant.NotitionActivity.important;
-import static com.example.habitassistant.NotitionActivity.normal;
-
-import androidx.annotation.RequiresApi;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-
 import android.Manifest;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.icu.util.Calendar;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.habitassistant.fragment.PersonalFragment;
 import com.example.habitassistant.fragment.ScheduleFragment;
@@ -52,7 +31,6 @@ import com.example.habitassistant.fragment.StatisticsFragment;
 import com.example.habitassistant.utils.MyFragmentStateAdapter;
 import com.example.habitassistant.utils.ScreenStatusChecker;
 import com.example.habitassistant.utils.SensorHandler;
-import com.github.mikephil.charting.charts.LineChart;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.qweather.sdk.bean.base.Code;
@@ -63,13 +41,11 @@ import com.qweather.sdk.view.HeConfig;
 import com.qweather.sdk.view.QWeather;
 
 import java.io.IOException;
-import java.util.List;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements SensorHandler.SensorDataListener{
+public class MainActivity extends AppCompatActivity implements SensorHandler.SensorDataListener {
 
     private SensorHandler sensorHandler;
     private ScreenStatusChecker screenStatusChecker;
@@ -98,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
 
     String info;
 
-    private int nid=1;
+    private int nid = 1;
 
     private ViewPager2 mViewPager;
     private BottomNavigationView mBottomNavigationView;
@@ -106,13 +82,14 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     private StatisticsFragment statisticsFragment;
     private ScheduleFragment scheduleFragment;
     private PersonalFragment personalFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         //通知
-        notificationManagerCompat=NotificationManagerCompat.from(this);
+        notificationManagerCompat = NotificationManagerCompat.from(this);
 
         //传感器
         sensorHandler = new SensorHandler(this, this);
@@ -125,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         //切换至免费订阅
         HeConfig.switchToDevService();
 
-                mViewPager = findViewById(R.id.main_viewPager);
+        mViewPager = findViewById(R.id.main_viewPager);
         mBottomNavigationView = findViewById(R.id.main_bottomNavigationView);
         // 设置适配器
         mViewPager.setAdapter(new MyFragmentStateAdapter(this, initData()));
@@ -199,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 //标签：place,action
                 //以上是数据，直接写入table
 
-                System.out.println(weather+"  "+windScale+"  "+windSpeed+"  "+latitude+"  "+longitude);
+                System.out.println(weather + "  " + windScale + "  " + windSpeed + "  " + latitude + "  " + longitude);
                 // 重新安排代码在10秒后再次运行
                 handler.postDelayed(this, 10000);
             }
@@ -224,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         double number1 = Double.parseDouble(longitude);
         String lon = (int) number1 + "." + String.format("%02d", (int) ((number1 - (int) number1) * 100));
 
-        String xy=lat+","+lon;
+        String xy = lat + "," + lon;
 //        Log.i("MainActivity",xy);
         QWeather.getWeatherNow(MainActivity.this, xy, Lang.ZH_HANS, Unit.METRIC,
                 new QWeather.OnResultWeatherNowListener() {
@@ -292,8 +269,8 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             latitude = String.valueOf(location.getLatitude());
             longitude = String.valueOf(location.getLongitude());
 
-            double la=location.getLatitude();
-            double lo=location.getLongitude();
+            double la = location.getLatitude();
+            double lo = location.getLongitude();
             Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
             try {
                 // 获取经纬度对于的位置
@@ -306,8 +283,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 info = address.getAddressLine(0) + // 获取国家名称
                         address.getAddressLine(1) + // 获取省市县(区)
                         address.getAddressLine(2);  // 获取镇号(地址名称)
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -317,72 +293,74 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         }
 
 
-        ViewPager2.OnPageChangeCallback onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                int itemID = R.id.statistics;
-                switch (position) {
-                    case 0:
-                        itemID = R.id.statistics;
-                        Log.d("HL", "1");
-                        break;
-                    case 1:
-                        itemID = R.id.schedule;
-                        Log.d("HL", "2");
-                        break;
-                    case 2:
-                        itemID = R.id.personal;
-                        Log.d("HL", "3");
-                        break;
-                    default:
-                        break;
-                }
-                //TODO 当Fragment滑动改变时，底部的Tab也跟着改变
-                mBottomNavigationView.setSelectedItemId(itemID);
-            }
-        };
-
-        NavigationBarView.OnItemSelectedListener onItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // 点击Tab, 切换对应的 Fragment
-                if (item.getItemId() == R.id.statistics) {
-                    mViewPager.setCurrentItem(0, true);
-                    return true;
-                } else if (item.getItemId() == R.id.schedule) {
-                    mViewPager.setCurrentItem(1, true);
-                    return true;
-                } else if (item.getItemId() == R.id.personal) {
-                    mViewPager.setCurrentItem(2, true);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
     }
-        private List<Fragment> initData(){
-            mData = new ArrayList<>();
-            statisticsFragment = new StatisticsFragment();
-            scheduleFragment = new ScheduleFragment();
-            personalFragment = new PersonalFragment();
-            mData.add(statisticsFragment);
-            mData.add(scheduleFragment);
-            mData.add(personalFragment);
-            return mData;
+
+    ViewPager2.OnPageChangeCallback onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            int itemID = R.id.statistics;
+            switch (position) {
+                case 0:
+                    itemID = R.id.statistics;
+                    Log.d("HL", "1");
+                    break;
+                case 1:
+                    itemID = R.id.schedule;
+                    Log.d("HL", "2");
+                    break;
+                case 2:
+                    itemID = R.id.personal;
+                    Log.d("HL", "3");
+                    break;
+                default:
+                    break;
+            }
+            //TODO 当Fragment滑动改变时，底部的Tab也跟着改变
+            mBottomNavigationView.setSelectedItemId(itemID);
         }
+    };
+
+    NavigationBarView.OnItemSelectedListener onItemSelectedListener = new NavigationBarView.OnItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            // 点击Tab, 切换对应的 Fragment
+            if (item.getItemId() == R.id.statistics) {
+                mViewPager.setCurrentItem(0, true);
+                return true;
+            } else if (item.getItemId() == R.id.schedule) {
+                mViewPager.setCurrentItem(1, true);
+                return true;
+            } else if (item.getItemId() == R.id.personal) {
+                mViewPager.setCurrentItem(2, true);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    private List<Fragment> initData() {
+        mData = new ArrayList<>();
+        statisticsFragment = new StatisticsFragment();
+        scheduleFragment = new ScheduleFragment();
+        personalFragment = new PersonalFragment();
+        mData.add(statisticsFragment);
+        mData.add(scheduleFragment);
+        mData.add(personalFragment);
+        return mData;
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void Notice1(View view){
+    public void Notice1(View view) {
 //        Log.i("MainActivity","提醒按钮1被点击");
 
 
 //        sendActiivity.n_openvx();
 //        sendActiivity.n_wurao();
 //        sendActiivity.n_openmusic();
-       // sendActiivity.n_Location("图书馆");
+        // sendActiivity.n_Location("图书馆");
 
         //权限检查与获取
 //        areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
