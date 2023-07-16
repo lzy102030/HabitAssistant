@@ -11,7 +11,6 @@ public class NotitionActivity extends Application {
     public static final String important="important";
     public static final String normal="normal";
 
-
     @Override
     public void onCreate() {
         super.onCreate();

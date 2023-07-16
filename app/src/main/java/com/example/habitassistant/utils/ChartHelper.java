@@ -21,7 +21,7 @@ import java.util.List;
 public class ChartHelper {
 
     public BarData createBarChart(List<BarEntry> entries, String statue) {
-        BarDataSet dataSet = new BarDataSet(entries, "本周"+statue+"统计");
+        BarDataSet dataSet = new BarDataSet(entries, statue+"统计");
         //设置颜色
         dataSet.setColors(new int[]{Color.parseColor("#04a6be"),}, 255);
         //设置标签
@@ -32,15 +32,6 @@ public class ChartHelper {
     }
 
     public LineData createLineChart(List<ILineDataSet> entries) {
-        //LineDataSet dataSet = new LineDataSet(entries, "Label");
-//        dataSet.setColors(new int[]{
-//                Color.parseColor("#FF9AA2"),
-//                Color.parseColor("#FFB447"),
-//                Color.parseColor("#FEE440"),
-//                Color.parseColor("#BDE876"),
-//                Color.parseColor("#A0DDFF"),
-//                Color.parseColor("#9D84B7"),
-//        }, 255);
         //dataSet.setLineWidth(10);
         LineData lineData = new LineData(entries);
         return lineData;
