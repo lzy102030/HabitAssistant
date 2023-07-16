@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button btn_login;
     private TextView tv_register;
     private ActivityResultLauncher<Intent> register;
-    private String url = "http://123.57.135.185:8000/auth/login";
+    private String url = "http://192.168.105.225:8000/auth/login";
     private String username;
     private String password;
     Intent intent;
