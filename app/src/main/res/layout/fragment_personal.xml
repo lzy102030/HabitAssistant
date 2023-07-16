@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.PersonalFragment">
+    tools:context=".fragment.PersonalFragment"
+    android:id="@+id/personal">
 
     <ImageView
         android:id="@+id/imageView"
@@ -100,7 +101,7 @@
             android:layout_height="54dp"
             android:checked="true"
             android:onClick="click_send3"
-            android:text="是否需要提示休息"
+            android:text="是否需要提示娱乐"
             android:thumbTint="@color/switch_thumb_blue"
             android:trackTint="@color/switch_track_default" />
 

@@ -120,11 +120,13 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         //切换至免费订阅
         HeConfig.switchToDevService();
 
+
         try {
             getGPS();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
         mViewPager = findViewById(R.id.main_viewPager);
         mBottomNavigationView = findViewById(R.id.main_bottomNavigationView);
@@ -295,50 +297,48 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             double la = location.getLatitude();
             double lo = location.getLongitude();
 
-            //逆地理编码
-            geoCoder = GeoCoder.newInstance();
-
-            // 设置逆地理编码监听器
-            geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
-                @Override
-                public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
-                    if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-                        // 逆地理编码失败，处理异常情况
-                        return;
-                    }
-
-                    // 获取逆地理编码结果
-                    List<PoiInfo> poiList = result.getPoiList();
-                    if (poiList != null && poiList.size() > 0) {
-                        PoiInfo poi = poiList.get(0);
-                        String poiName = poi.getName();
-                        String poiAddress = poi.getAddress();
-                        // 处理POI信息...
-
-                        Log.i("MainActivity","poiName:"+poiName);
-                        Log.i("MainActivity","poiAddress:"+poiAddress);
-
-                    }
-                }
-
-                @Override
-                public void onGetGeoCodeResult(GeoCodeResult result) {
-                    // 不处理正向地理编码结果
-                }
-            });
-
-
-            // 构建逆地理编码参数
-            ReverseGeoCodeOption reverseGeoCodeOption = new ReverseGeoCodeOption()
-                    .location(new LatLng(la,lo));
-
-            // 发起逆地理编码
-            geoCoder.reverseGeoCode(reverseGeoCodeOption);
-
-            // 释放逆地理编码实例
-            geoCoder.destroy();
-
-
+//            //逆地理编码
+//            geoCoder = GeoCoder.newInstance();
+//
+//            // 设置逆地理编码监听器
+//            geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+//                @Override
+//                public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+//                    if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+//                        // 逆地理编码失败，处理异常情况
+//                        return;
+//                    }
+//
+//                    // 获取逆地理编码结果
+//                    List<PoiInfo> poiList = result.getPoiList();
+//                    if (poiList != null && poiList.size() > 0) {
+//                        PoiInfo poi = poiList.get(0);
+//                        String poiName = poi.getName();
+//                        String poiAddress = poi.getAddress();
+//                        // 处理POI信息...
+//
+//                        Log.i("MainActivity","poiName:"+poiName);
+//                        Log.i("MainActivity","poiAddress:"+poiAddress);
+//
+//                    }
+//                }
+//
+//                @Override
+//                public void onGetGeoCodeResult(GeoCodeResult result) {
+//                    // 不处理正向地理编码结果
+//                }
+//            });
+//
+//
+//            // 构建逆地理编码参数
+//            ReverseGeoCodeOption reverseGeoCodeOption = new ReverseGeoCodeOption()
+//                    .location(new LatLng(la,lo));
+//
+//            // 发起逆地理编码
+//            geoCoder.reverseGeoCode(reverseGeoCodeOption);
+//
+//            // 释放逆地理编码实例
+//            geoCoder.destroy();
 
 
             Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
@@ -354,11 +354,20 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                         address.getAddressLine(2);  // 获取镇号(地址名称)
                 System.out.println(info);
 
-                Intent intent=new Intent(this,NotificationSendActiivity.class);
+                Intent intent=new Intent(this, PersonalFragment.class);
                 intent.putExtra("latitude",la);
                 intent.putExtra("longitude",lo);
                 intent.putExtra("info",info);
-                startActivity(intent);
+
+
+                PersonalFragment fragment = new PersonalFragment();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("intent", intent);
+                fragment.setArguments(bundle);
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.personal,fragment)
+                        .commit();
 
             } catch (IOException e) {
                 e.printStackTrace();

@@ -48,8 +48,12 @@ public class ActionActivity extends BroadcastReceiver {
             default:
                 break;
         }
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(intent.getIntExtra("nid", 0));
+//        if (intent.getIntExtra("nid", 0)!=0){
+//            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+//            manager.cancel(intent.getIntExtra("nid", 0));
+//            System.out.println("通知清除");
+//        }
+
     }
 
 //备用方法
@@ -121,7 +125,9 @@ public class ActionActivity extends BroadcastReceiver {
             if (!notificationManager.isNotificationPolicyAccessGranted()) {
                 // 如果没有权限，请求授权
                 Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
+
                 Log.i("MainActivity","勿扰模式申请权限");
             } else {
                 if (Objects.equals(action, "打开")){
