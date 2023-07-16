@@ -8,4 +8,7 @@
     <color name="blue">#1E90FF</color>
 
     <color name="fabColor">#307af5</color>
+
+
+    <color name="calendarPastDayTextColor">#7b7b7b</color>
 </resources>

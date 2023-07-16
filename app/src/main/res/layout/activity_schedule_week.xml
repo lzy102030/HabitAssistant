@@ -15,7 +15,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:viewType="Week"
-        app:headerTextSize="30sp"
+        app:headerTextSize="14sp"
         app:timeTextSize="12sp"
         app:timeTextColor="#FF7C7C7C"
         app:eventTextSize="10sp"

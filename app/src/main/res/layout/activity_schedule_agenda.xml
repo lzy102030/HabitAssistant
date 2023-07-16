@@ -14,10 +14,10 @@
         android:layout_height="match_parent"
         app:agendaCurrentDayTextColor="@color/blue"
         app:calendarDayTextColor="@color/blue"
-        app:calendarPastDayTextColor="@color/orange"
+        app:calendarPastDayTextColor="@color/calendarPastDayTextColor"
 
-        app:calendarColor="@color/black"
-        app:calendarHeaderColor="@color/black"
+        app:calendarColor="@color/white"
+        app:calendarHeaderColor="@color/white"
 
 
         app:fabColor="@color/fabColor"

@@ -16,6 +16,7 @@ import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.CalendarView
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnEventClickListener;
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnEventLongPressListener;
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnSchedulerPageChangedListener;
+import com.example.habitassistant.utils.Constant;
 import com.github.tibolte.agendacalendarview.AgendaCalendarView;
 import com.github.tibolte.agendacalendarview.CalendarPickerController;
 import com.github.tibolte.agendacalendarview.models.BaseCalendarEvent;
@@ -75,9 +76,10 @@ public class ScheduleAgendaFragment extends Fragment  implements CalendarPickerC
         Calendar maxDate = Calendar.getInstance();
         minDate.add(Calendar.MONTH, -2);
         minDate.set(Calendar.DAY_OF_MONTH, 1);
-        maxDate.add(Calendar.YEAR, 1);
+//        maxDate.add(Calendar.YEAR, 1);
         eventList = new ArrayList<>();
-        mockList(eventList);
+        eventList.clear();
+        mockList1(eventList);
         agendaCalendarView.init(eventList, minDate, maxDate, Locale.getDefault(), this);
 
 
@@ -111,7 +113,15 @@ public class ScheduleAgendaFragment extends Fragment  implements CalendarPickerC
         eventList.add(event3);
     }
 
-
+    private void mockList1(List<CalendarEvent> eventList){
+        if(Constant.eventList !=null){
+            for (CalendarViewEvent event:Constant.eventList){
+                DrawableCalendarEvent event2 = new DrawableCalendarEvent(event.name, "A beautiful small town", "Dalvík",
+                        ContextCompat.getColor(getContext(), R.color.orange), event.startTime, event.endTime, false, R.drawable.account);
+                eventList.add(event2);
+            }
+        }
+    }
     @Override
     public void onDaySelected(DayItem dayItem) {
 

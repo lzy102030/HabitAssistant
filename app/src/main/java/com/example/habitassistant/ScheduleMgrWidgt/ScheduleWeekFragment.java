@@ -1,5 +1,8 @@
 package com.example.habitassistant.ScheduleMgrWidgt;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +13,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -19,17 +23,34 @@ import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.CalendarView
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnEventClickListener;
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnEventLongPressListener;
 import com.example.habitassistant.ScheduleMgrWidgt.library.WeekView.OnSchedulerPageChangedListener;
+import com.example.habitassistant.entity.DayActivityData;
 import com.example.habitassistant.utils.ChartHelper;
+import com.example.habitassistant.utils.Constant;
+import com.example.habitassistant.utils.OkhttpHelper;
+import com.example.habitassistant.utils.TimeConverter;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarEntry;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 /**
@@ -39,33 +60,40 @@ import java.util.Objects;
  */
 public class ScheduleWeekFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
+    private int nums=0;
     private String mParam1;
 
     private OnEventClickListener clickListener;
     private OnEventLongPressListener longclickListener;
     private ArrayList<CalendarViewEvent> eventList = new ArrayList<CalendarViewEvent>();
+    private CalendarView schedule_week;
+    private View rootView;
 
     public ScheduleWeekFragment() {
         // Required empty public constructor
+
     }
 
     public static ScheduleWeekFragment newInstance() {
         ScheduleWeekFragment fragment = new ScheduleWeekFragment();
         Bundle args = new Bundle();
+        ArrayList<CalendarViewEvent> eventList1 = Constant.eventList;
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.activity_schedule_week, container, false);
-        CalendarView schedule_week = rootView.findViewById(R.id.schedule_week);
+        rootView = inflater.inflate(R.layout.activity_schedule_week, container, false);
+        schedule_week = rootView.findViewById(R.id.schedule_week);
 
         //初始化监听器---可实现自定义行为
         clickListener=new OnEventClickListener() {
@@ -92,11 +120,15 @@ public class ScheduleWeekFragment extends Fragment {
             }
         });
 
-
+        String url = Constant.RMOTE_SERVER+"?start_date="+"2022-10-16"+"&end_date="+"2024-12-16";
+        SharedPreferences sp = getActivity().getSharedPreferences("loginSera", MODE_PRIVATE);
+        String token = sp.getString("token", "");
         //渲染数据
-        eventList.clear();
-        eventList.addAll(obtainEvents());
-        schedule_week.addEvents(eventList);
+//        sendRequest("2002-10-16","2024-10-16");
+        schedule_week.addEvents(Constant.eventList);
+
+//        eventList.addAll(obtainEvents());
+//        schedule_week.setEvents(eventList);
 
 
         return rootView;
@@ -174,6 +206,50 @@ public class ScheduleWeekFragment extends Fragment {
         events.add(event22);
         return events;
     }
+    // Get方法发送数据
+    private  void sendRequest(String start_time, String end_time) {
+        String url = Constant.RMOTE_SERVER+"?start_date="+start_time+"&end_date="+end_time;
+        SharedPreferences sp = getActivity().getSharedPreferences("loginSera", MODE_PRIVATE);
+        String token = sp.getString("token", "");
+        OkhttpHelper.getRequest(url,token ,new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e){
+                Log.i("CalendarView","onFailure:"+e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException{
+                String result = response.body().string();
+                Log.i("Schedule",result);
+                if(response.isSuccessful())
+                {
+                    //回调的方法执行在子线程
+                    eventList.clear();
+                    List<CalendarViewEvent> events = parseJSONWithGSON(result);
+                    eventList.addAll(events);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            schedule_week.setEvents(eventList);
+
+                        }
+                    });
+                    Log.d("result:",result);
+                }
+            }
+        });
+    }
 
 
+    //解析json字符串
+    private  List<CalendarViewEvent> parseJSONWithGSON(String jsonData){
+        Gson gson = new Gson();
+        List<DayActivityData> actList = gson.fromJson(jsonData,new TypeToken<List<DayActivityData>>(){}.getType());
+        List<CalendarViewEvent> events=new ArrayList<>();
+        for(DayActivityData dayActivityData:actList){
+            CalendarViewEvent event=new CalendarViewEvent(dayActivityData.getStart_time(),
+                    dayActivityData.getEnd_time(),dayActivityData.getState());
+            events.add(event);
+        }
+        return events;
+    }
 }

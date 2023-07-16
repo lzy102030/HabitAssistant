@@ -85,6 +85,9 @@ public class ScheduleFragment extends Fragment {
 
         ScheduleAdapter scheduleAdapter = new ScheduleAdapter(getActivity(), mData,null);
         viewPager2.setAdapter(scheduleAdapter);
+
+        //TODO
+        viewPager2.setOffscreenPageLimit(1);
         new TabLayoutMediator(tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {

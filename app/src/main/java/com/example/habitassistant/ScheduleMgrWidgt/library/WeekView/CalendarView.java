@@ -1,7 +1,10 @@
 package com.example.habitassistant.ScheduleMgrWidgt.library.WeekView;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -19,6 +22,7 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,9 +32,15 @@ import java.util.List;
 
 import com.example.habitassistant.MainActivity;
 import com.example.habitassistant.R;
+import com.example.habitassistant.entity.DayActivityData;
+import com.example.habitassistant.utils.Constant;
+import com.example.habitassistant.utils.OkhttpHelper;
 import com.example.habitassistant.utils.UnitUtils;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -53,7 +63,7 @@ public class CalendarView extends LinearLayout {
     private int mFirstDayOfWeek = Calendar.SUNDAY;
     private int mHourHeight = 0;
 
-
+    private Context mcontext;
     private OnEventClickListener eventClickListener= null;
     private OnEventLongPressListener eventLongPressListener= null;
     private OnSchedulerPageChangedListener pageChangedListener = null;
@@ -88,6 +98,7 @@ public class CalendarView extends LinearLayout {
         mFirstDayOfWeek = array.getInt(R.styleable.CalendarView_firstDayOfWeek, Calendar.SUNDAY);
         mHourHeight = array.getDimensionPixelSize(R.styleable.CalendarView_hourHeight, UnitUtils.dip2px(context,50));
         array.recycle();
+        mcontext=context;
         init(context);
     }
 
@@ -210,7 +221,7 @@ public class CalendarView extends LinearLayout {
             });
             mShowDays.put(position, view.setScheduleViewPagerPosition(mPosition));
             currentViews.add(view);
-            view.setEvents(mEventList);
+            view.setEvents(Constant.eventList);
             return view;
         }
 
@@ -246,6 +257,14 @@ public class CalendarView extends LinearLayout {
         adapter.setEventList(mEventList);
     }
 
+    public void  setEvents( List<CalendarViewEvent> events) {
+        Log.i("CalenderView",events.toString());
+        mEventList.clear();
+        mEventList.addAll(events);
+        adapter.setEventList(mEventList);
+    }
+
+
     public void  removeEvents() {
         mEventList.clear();
         adapter.setEventList(mEventList);
@@ -265,6 +284,90 @@ public class CalendarView extends LinearLayout {
     }
 
 
+
+    // Get方法发送数据
+    private void sendRequest(String start_time,String end_time) {
+        String url = Constant.RMOTE_SERVER+"?start_date="+start_time+"&end_date="+end_time;
+//      SharedPreferences sp = .getSharedPreferences("loginSera", MODE_PRIVATE);
+        String token="";
+        OkhttpHelper.getRequest(url,token ,new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e){
+                Log.i("CalendarView","onFailure:"+e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException{
+                String result = response.body().string();
+                if(response.isSuccessful())
+                {
+                    //回调的方法执行在子线程
+                    List<CalendarViewEvent> events = parseJSONWithGSON(result);
+                    setEvents(events);
+                    Log.d("result:",result);
+                }
+            }
+        });
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    OkHttpClient client = new OkHttpClient();
+//                    //url = url + "?start_date=2023-7-"+day+"&end_date=2023-7-"+day;
+//                    url = url + "?start_date=2023-7-10&end_date=2023-7-10";
+//                    Request request = new Request.Builder()
+//                            .url(url)
+//                            .header("Authorization", "Bearer " + token)
+//                            .build();
+//                    client.newCall(request).enqueue(new Callback() {
+//                        @Override
+//                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                        @Override
+//                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                            if (response.isSuccessful()) {
+//                                lineChart = rootView.findViewById(R.id.lineChart);
+//                                String statue = "";
+//                                final String responseData = response.body().string();
+//                                float start_time = 0;
+//                                float end_time = 0;
+//                                JSONArray jsonArray = null;
+//                                try {
+//                                    jsonArray = new JSONArray(responseData);
+//                                } catch (JSONException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                                // 使用Activity的runOnUiThread方法切回主线程
+//                                getActivity().runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        // 在这里更新Fragment的UI
+//
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+    }
+
+
+    //解析json字符串
+    private  List<CalendarViewEvent> parseJSONWithGSON(String jsonData){
+        Gson gson = new Gson();
+        List<DayActivityData> actList = gson.fromJson(jsonData,new TypeToken<List<DayActivityData>>(){}.getType());
+        List<CalendarViewEvent> events=new ArrayList<>();
+        for(DayActivityData dayActivityData:actList){
+            CalendarViewEvent event=new CalendarViewEvent(dayActivityData.getStart_time(),
+                    dayActivityData.getEnd_time(),dayActivityData.getState());
+            events.add(event);
+        }
+        return events;
+    }
 
 
 }
