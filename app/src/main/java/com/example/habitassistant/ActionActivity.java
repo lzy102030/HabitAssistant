@@ -1,7 +1,6 @@
 package com.example.habitassistant;
 
-import android.Manifest;
-import android.app.Activity;
+
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -9,13 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.media.AudioManager;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -30,7 +23,7 @@ public class ActionActivity extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(Tag, "context: " + context + " intent: " + intent);
+//        Log.i(Tag, "context: " + context + " intent: " + intent);
 
         action = intent.getAction();
         category = intent.getCategories().toString();
@@ -48,11 +41,11 @@ public class ActionActivity extends BroadcastReceiver {
             default:
                 break;
         }
-//        if (intent.getIntExtra("nid", 0)!=0){
-//            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//            manager.cancel(intent.getIntExtra("nid", 0));
+        if (intent.getIntExtra("nid", 0)!=0){
+            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(intent.getIntExtra("nid", 0));
 //            System.out.println("通知清除");
-//        }
+        }
 
     }
 

@@ -3,6 +3,7 @@ package com.example.habitassistant;
 import static android.content.ContentValues.TAG;
 
 import static com.example.habitassistant.NotitionActivity.important;
+import static com.example.habitassistant.NotitionActivity.normal;
 
 import android.Manifest;
 import android.app.Notification;
@@ -33,6 +34,11 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.example.habitassistant.fragment.PersonalFragment;
 import com.example.habitassistant.fragment.ScheduleFragment;
@@ -57,24 +63,53 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SensorHandler.SensorDataListener {
     private NotificationManagerCompat notificationManagerCompat;
-    private Intent intent;
-
     private String info_old;
     private String info_new;
 
-    private int jiaoxuelou_state=1;
-    private int tushuguan_state=1;
-    private int xiuxi_state=1;
-    private int tushuguanyuding_state=1;
-    private int import_state=1;
+    private String place;
+
+    public boolean getJiaoxuelou_state() {
+        return jiaoxuelou_state;
+    }
+
+    public void setJiaoxuelou_state(boolean jiaoxuelou_state) {
+        this.jiaoxuelou_state = jiaoxuelou_state;
+    }
+
+    public boolean getTushuguan_state() {
+        return tushuguan_state;
+    }
+
+    public void setTushuguan_state(boolean tushuguan_state) {
+        this.tushuguan_state = tushuguan_state;
+    }
+
+    public boolean getXiuxi_state() {
+        return xiuxi_state;
+    }
+
+    public void setXiuxi_state(boolean xiuxi_state) {
+        this.xiuxi_state = xiuxi_state;
+    }
+
+    public boolean getTushuguanyuding_state() {
+        return tushuguanyuding_state;
+    }
+
+    public void setTushuguanyuding_state(boolean tushuguanyuding_state) {
+        this.tushuguanyuding_state = tushuguanyuding_state;
+    }
+
+    private LocationClient mLocationClient;
+    private BDAbstractLocationListener myLocationListener;
+    private boolean jiaoxuelou_state=true;
+    private boolean tushuguan_state=true;
+    private boolean xiuxi_state=true;
+    private boolean tushuguanyuding_state=true;
     private boolean getin;
-
-
     private static int wurao_nid=1;
     private static int vx_nid=10;
     private static int music_nid=20;
-
-
 
     private SensorHandler sensorHandler;
     private ScreenStatusChecker screenStatusChecker;
@@ -114,13 +149,13 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         setContentView(R.layout.activity_main);
 
         // 在合适的位置初始化百度地图SDK
-//        SDKInitializer.setAgreePrivacy(getApplicationContext(), true);
-//        SDKInitializer.initialize(getApplicationContext());
+        SDKInitializer.setAgreePrivacy(getApplicationContext(), true);
+        SDKInitializer.initialize(getApplicationContext());
+        LocationClient.setAgreePrivacy(true);
 
 
         //通知
         notificationManagerCompat=NotificationManagerCompat.from(this);
-
         areNotificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled();
 
         //传感器
@@ -144,15 +179,12 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         // 设置 ViewPager2 页面改变的监听
         mViewPager.registerOnPageChangeCallback(onPageChangeCallback);
 
-
         try {
             getGPS();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        //通知
-        notificationManagerCompat=NotificationManagerCompat.from(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             pemissioncheck();
@@ -195,6 +227,21 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         }
     }
 
+    private void location_send(){
+        if (info_new.contains("教学楼")||info_new.contains("思源楼")||info_new.contains("办公楼")){
+            place="教室";
+        }
+        else if (info_new.contains("公寓")){
+            place="宿舍";
+        }
+        else if (info_new.contains("食堂")||info_new.contains("餐厅")){
+            place="食堂";
+        }
+        else {
+            place="其他";
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void pemissioncheck(){
         //勿扰模式权限
@@ -211,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void n_wurao() {
 
-        if (jiaoxuelou_state == 1) {
+        if (jiaoxuelou_state) {
             Intent intent_Main = new Intent(this, MainActivity.class);
             Intent intent_Action1 = new Intent(this, ActionActivity.class);
             Intent intent_Action2 = new Intent(this, ActionActivity.class);
@@ -219,10 +266,10 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             intent_Action1.setAction("打开");
             intent_Action1.addCategory("勿扰模式");
 
-//            if (getin==true){
-//                //开启勿扰
-//                sendBroadcast(intent_Action1);
-//            }
+            if (getin==true){
+                //开启勿扰
+                sendBroadcast(intent_Action1);
+            }
 
             intent_Action1.putExtra("nid", wurao_nid);
             intent_Action1.setPackage(String.valueOf(this));
@@ -230,10 +277,10 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             intent_Action2.setAction("关闭");
             intent_Action2.addCategory("勿扰模式");
 
-//            if (getin!=true){
-//                //关闭勿扰
-//                sendBroadcast(intent_Action2);
-//            }
+            if (getin!=true){
+                //关闭勿扰
+                sendBroadcast(intent_Action2);
+            }
 
             intent_Action2.putExtra("nid", wurao_nid);
             intent_Action2.setPackage(String.valueOf(this));
@@ -287,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
             }
         }
 
-        else if (jiaoxuelou_state == 0){
+        else if (!jiaoxuelou_state){
             Log.i("MainActivity","已关闭该通知");
         }
     }
@@ -368,8 +415,192 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
         notificationManagerCompat.notify(music_nid,notification);
     }
 
+    private void open_notification(String action,String category,String title,String text) {
+        Intent intent_Main = new Intent(this, MainActivity.class);
+        Intent intent_Action1 = new Intent(this, ActionActivity.class);
+        Intent intent_Action2 = new Intent(this, ActionActivity.class);
+
+        intent_Action1.setAction(action);
+        intent_Action1.addCategory(category);
+
+        if (Objects.equals(action, "打开")) {
+            //开启勿扰
+            sendBroadcast(intent_Action1);
+
+            intent_Action2.setAction("关闭");
+            intent_Action2.addCategory(category);
+            intent_Action2.putExtra("nid", wurao_nid);
+            intent_Action2.setPackage(String.valueOf(this));
+
+            //转到主页
+            PendingIntent pending_Main = PendingIntent.getActivity(this, 0,
+                    intent_Main, PendingIntent.FLAG_MUTABLE);
+            //转到通知
+            PendingIntent pending_Action2 = PendingIntent.getBroadcast(this, wurao_nid,
+                    intent_Action2, PendingIntent.FLAG_MUTABLE);
+
+            //震动时长设置
+            long[] vibrationPattern = {500, 500, 500, 500};
+
+            //通知内容
+            Notification notification = new NotificationCompat.Builder(this, important)
+                    .setSmallIcon(R.drawable.baseline_smartphone_24)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setVibrate(vibrationPattern)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pending_Main)
+//                        .addAction(0, "去打开", pending_Action1)
+                    .addAction(0, "去关闭", pending_Action2)
+                    .setWhen(System.currentTimeMillis())
+                    .setGroup("myGroup")
+                    .build();
+            //显示通知
+            notificationManagerCompat.notify(wurao_nid, notification);
+
+        }else if (Objects.equals(action, "打开音乐")){
+
+            intent_Action1.setAction(action);
+            intent_Action1.addCategory(category);
+            intent_Action1.putExtra("nid",music_nid);
+            intent_Action1.setPackage(String.valueOf(this));
+
+            //转到主页
+            PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+                    intent_Main, PendingIntent.FLAG_MUTABLE);
+            PendingIntent pending_Action1=PendingIntent.getBroadcast(this, music_nid,
+                    intent_Action1, PendingIntent.FLAG_MUTABLE);
+
+            //震动时长设置
+            long[] vibrationPattern = {500, 500, 500, 500};
+
+            //通知内容
+            Notification notification=new NotificationCompat.Builder(this,important)
+                    .setSmallIcon(R.drawable.baseline_smartphone_24)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setVibrate(vibrationPattern)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pending_Main)
+                    .addAction(0,"知道了",pending_Action1)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
+
+            //显示通知
+            notificationManagerCompat.notify(music_nid,notification);
+
+        }else if (Objects.equals(action, "打开微信")){
+            intent_Action1.setAction(action);
+            intent_Action1.addCategory(category);
+            intent_Action1.putExtra("nid",vx_nid);
+            intent_Action1.setPackage(String.valueOf(this));
+
+            //转到主页
+            PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+                    intent_Main, PendingIntent.FLAG_MUTABLE);
+            //覆盖前一个通知
+            PendingIntent pending_Action1=PendingIntent.getBroadcast(this, vx_nid,
+                    intent_Action1, PendingIntent.FLAG_MUTABLE);
 
 
+            //震动时长设置
+            long[] vibrationPattern = {500, 500, 500, 500};
+
+            //通知内容
+            Notification notification=new NotificationCompat.Builder(this,important)
+                    .setSmallIcon(R.drawable.baseline_smartphone_24)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setVibrate(vibrationPattern)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pending_Main)
+                    .addAction(0,"知道了",pending_Action1)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
+
+            //显示通知
+            notificationManagerCompat.notify(vx_nid,notification);
+
+        }else {
+            intent_Action1.setAction(action);
+            intent_Action1.addCategory(category);
+            intent_Action1.putExtra("nid",vx_nid);
+            intent_Action1.setPackage(String.valueOf(this));
+
+            //转到主页
+            PendingIntent pending_Main=PendingIntent.getActivity(this, 0,
+                    intent_Main, PendingIntent.FLAG_MUTABLE);
+            //覆盖前一个通知
+            PendingIntent pending_Action1=PendingIntent.getBroadcast(this, vx_nid,
+                    intent_Action1, PendingIntent.FLAG_MUTABLE);
+
+
+            //震动时长设置
+            long[] vibrationPattern = {500, 500, 500, 500};
+
+            //通知内容
+            Notification notification=new NotificationCompat.Builder(this,important)
+                    .setSmallIcon(R.drawable.baseline_smartphone_24)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setVibrate(vibrationPattern)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pending_Main)
+                    .addAction(0,"知道了",pending_Action1)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
+
+            //显示通知
+            notificationManagerCompat.notify(vx_nid,notification);
+        }
+    }
+
+    private void close_notification(String category,String title,String text){
+        Intent intent_Main = new Intent(this, MainActivity.class);
+        Intent intent_Action1 = new Intent(this, ActionActivity.class);
+        Intent intent_Action2 = new Intent(this, ActionActivity.class);
+
+        intent_Action1.setAction("打开");
+        intent_Action1.addCategory(category);
+        intent_Action1.putExtra("nid", wurao_nid);
+        intent_Action1.setPackage(String.valueOf(this));
+
+        intent_Action2.setAction("关闭");
+        intent_Action2.addCategory(category);
+        //关闭勿扰
+        sendBroadcast(intent_Action2);
+
+        //转到主页
+        PendingIntent pending_Main = PendingIntent.getActivity(this, 0,
+                intent_Main, PendingIntent.FLAG_MUTABLE);
+        //转到通知
+        PendingIntent pending_Action1 = PendingIntent.getBroadcast(this, wurao_nid,
+                intent_Action1, PendingIntent.FLAG_MUTABLE);
+
+        //震动时长设置
+        long[] vibrationPattern = {500, 500, 500, 500};
+
+        Notification notification = new NotificationCompat.Builder(this, important)
+                    .setSmallIcon(R.drawable.baseline_smartphone_24)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setVibrate(vibrationPattern)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pending_Main)
+                    .addAction(0, "去打开", pending_Action1)
+//                        .addAction(0, "去关闭", pending_Action2)
+                    .setWhen(System.currentTimeMillis())
+                    .setGroup("myGroup")
+                    .build();
+            //显示通知
+            notificationManagerCompat.notify(wurao_nid, notification);
+
+    }
 
     //传感器
     @Override
@@ -414,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                 screenStatus = screenStatusChecker.isScreenOn();
                 try {
                     getGPS();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 getTheater();
@@ -495,7 +726,7 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
     }
 
     //GPS
-    public void getGPS() throws IOException {
+    public void getGPS() throws Exception {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -510,93 +741,114 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                     1);
         }
         // location();
+        mLocationClient=new LocationClient(getApplicationContext());
+        LocationClientOption option = new LocationClientOption();
+        option.setIsNeedAddress(true);//定位地址
+//        option.setIndoorEnable(true);//室内定位
+        option.setScanSpan(1000); // 设置定位请求的时间间隔为1秒
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy); // 设置定位模式为高精度模式
+        mLocationClient.setLocOption(option);
+        mLocationClient.start();
 
-        //3种获取GPS实例方法，从网络，到GPS，再到被动获取的顺序
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (location == null) {
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location == null) {
-                location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        myLocationListener = new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation location) {
+
+                // 获取经纬度信息
+                latitude = String.valueOf(location.getLatitude());
+                longitude = String.valueOf(location.getLongitude());
+                double la = location.getLatitude();
+                double lo = location.getLongitude();
+                Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+                try {
+                    // 获取经纬度对于的位置
+                    // getFromLocation(纬度, 经度, 最多获取的位置数量)
+                    List<Address> addresses = geocoder.getFromLocation(la, lo, 1);
+                    // 得到第一个经纬度位置解析信息
+                    if (addresses != null && addresses.size() > 0){
+                        Address address = addresses.get(0);
+                        // 获取到详细的当前位置
+                        // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
+                        // 获取省市县(区)
+                        String info = address.getAddressLine(1) + // 获取省市县(区)
+                                address.getAddressLine(2);  // 获取镇号(地址名称)
+                        System.out.println(info);
+                        info_new = info;
+                        // 停止定位
+                        mLocationClient.stop();
+                    }else {
+                        info_new=location.getAddrStr();
+                        String buildingName = location.getBuildingName();
+                        System.out.println(info_new);
+                        System.out.println(buildingName);
+                        Log.i("MainActivity","数组为空");
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
-
-        //输出经纬度
-        if (location != null) {
-            //获取经纬度
-            latitude = String.valueOf(location.getLatitude());
-            longitude = String.valueOf(location.getLongitude());
-            double la = location.getLatitude();
-            double lo = location.getLongitude();
-
-            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-            try {
-                // 获取经纬度对于的位置
-                // getFromLocation(纬度, 经度, 最多获取的位置数量)
-                List<Address> addresses = geocoder.getFromLocation(la, lo, 1);
-                // 得到第一个经纬度位置解析信息
-                Address address = addresses.get(0);
-                // 获取到详细的当前位置
-                // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
-                // 获取省市县(区)
-                String info = address.getAddressLine(1) + // 获取省市县(区)
-                        address.getAddressLine(2);  // 获取镇号(地址名称)
-                System.out.println(info);
-                info_new= info;
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        };
 
 
-            //            //逆地理编码
-//            geoCoder = GeoCoder.newInstance();
+
+            //3种获取GPS实例方法，从网络，到GPS，再到被动获取的顺序
+//        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//        if (location == null) {
+//            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            if (location == null) {
+//                location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+//            }
+//        }
+
+//        //输出经纬度
+//        if (location != null) {
+//            //获取经纬度
+//            latitude = String.valueOf(location.getLatitude());
+//            longitude = String.valueOf(location.getLongitude());
+//            double la = location.getLatitude();
+//            double lo = location.getLongitude();
 //
-//            // 设置逆地理编码监听器
-//            geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
-//                @Override
-//                public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
-//                    if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-//                        // 逆地理编码失败，处理异常情况
-//                        return;
-//                    }
+//            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+//            try {
+//                // 获取经纬度对于的位置
+//                // getFromLocation(纬度, 经度, 最多获取的位置数量)
+//                List<Address> addresses = geocoder.getFromLocation(la, lo, 1);
+//                // 得到第一个经纬度位置解析信息
+//                Address address = addresses.get(0);
+//                // 获取到详细的当前位置
+//                // Address里面还有很多方法你们可以自行实现去尝试。比如具体省的名称、市的名称...
+//                // 获取省市县(区)
+//                String info = address.getAddressLine(1) + // 获取省市县(区)
+//                        address.getAddressLine(2);  // 获取镇号(地址名称)
+//                System.out.println(info);
+//                info_new= info;
 //
-//                    // 获取逆地理编码结果
-//                    List<PoiInfo> poiList = result.getPoiList();
-//                    if (poiList != null && poiList.size() > 0) {
-//                        PoiInfo poi = poiList.get(0);
-//                        String poiName = poi.getName();
-//                        String poiAddress = poi.getAddress();
-//                        // 处理POI信息...
-//
-//                        Log.i("MainActivity","poiName:"+poiName);
-//                        Log.i("MainActivity","poiAddress:"+poiAddress);
-//
-//                    }
-//                }
-//
-//                @Override
-//                public void onGetGeoCodeResult(GeoCodeResult result) {
-//                    // 不处理正向地理编码结果
-//                }
-//            });
-//
-//
-//            // 构建逆地理编码参数
-//            ReverseGeoCodeOption reverseGeoCodeOption = new ReverseGeoCodeOption()
-//                    .location(new LatLng(la,lo));
-//
-//            // 发起逆地理编码
-//            geoCoder.reverseGeoCode(reverseGeoCodeOption);
-//
-//            // 释放逆地理编码实例
-//            geoCoder.destroy();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+//        } else {
+//            Log.i("Permission", "传感器为空");
+//            Log.i("Permission", String.valueOf(location));
+//        }
+
+    }
 
 
-        } else {
-            Log.i("Permission", "传感器为空");
-            Log.i("Permission", String.valueOf(location));
-        }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        mLocationClient.registerLocationListener(myLocationListener); // 注册监听器
+        mLocationClient.start(); // 开始定位
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mLocationClient.unRegisterLocationListener(myLocationListener); // 取消注册监听器
+        mLocationClient.stop(); // 停止定位
     }
 
     ViewPager2.OnPageChangeCallback onPageChangeCallback = new ViewPager2.OnPageChangeCallback() {

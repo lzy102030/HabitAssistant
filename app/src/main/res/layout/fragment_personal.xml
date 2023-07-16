@@ -70,7 +70,6 @@
             android:layout_height="55dp"
             android:layout_marginTop="101dp"
             android:checked="true"
-            android:onClick="click_send1"
             android:text="进出教学楼控制勿扰"
             android:thumbTint="@color/switch_thumb_blue"
             android:trackTint="@color/switch_track_default" />
@@ -85,7 +84,6 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:checked="true"
-            android:onClick="click_send2"
             android:text="进出图书馆控制勿扰"
             android:thumbTint="@color/switch_thumb_blue"
             android:trackTint="@color/switch_track_default" />
@@ -100,7 +98,6 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:checked="true"
-            android:onClick="click_send3"
             android:text="是否需要提示娱乐"
             android:thumbTint="@color/switch_thumb_blue"
             android:trackTint="@color/switch_track_default" />
@@ -115,7 +112,6 @@
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:checked="true"
-            android:onClick="click_send4"
             android:text="是否提醒开启图书馆预订"
             android:thumbTint="@color/switch_thumb_blue"
             android:trackTint="@color/switch_track_default" />
