@@ -259,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements SensorHandler.Sen
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION},
                     1);
-            return;
         }
         // location();
 

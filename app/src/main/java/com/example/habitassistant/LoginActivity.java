@@ -44,10 +44,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         SharedPreferences sp = getSharedPreferences("loginSera",MODE_PRIVATE);
         String isLogin = sp.getString("isLogin","");
         //登录检测，已登录不需要重新登录
-//        if(isLogin.equals("1")){
-//            startActivity(new Intent(this,MainActivity.class));
-//            finish();
-//        }
+        if(isLogin.equals("1")){
+            startActivity(new Intent(this,MainActivity.class));
+            finish();
+        }
         et_username = findViewById(R.id.et_userName);
         et_password = findViewById(R.id.et_psw);
         btn_login = findViewById(R.id.btn_login);

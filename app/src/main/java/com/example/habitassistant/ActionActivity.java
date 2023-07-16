@@ -30,38 +30,28 @@ public class ActionActivity extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.i(Tag,"context: "+context+" intent: "+intent);
+        Log.i(Tag, "context: " + context + " intent: " + intent);
 
-        action=intent.getAction();
-        category= intent.getCategories().toString();
-        this.context=context;
+        action = intent.getAction();
+        category = intent.getCategories().toString();
+        this.context = context;
 
-        System.out.println(action+"   "+category);
+        System.out.println(action + "   " + category);
 
-        switch (category){
+        switch (category) {
             case "{应用管理}":
                 appController();
                 break;
             case "{勿扰模式}":
                 wuraoController();
                 break;
-            case "{到达地点}":
-                arriveLocation();
-                break;
             default:
                 break;
         }
-        NotificationManager manager=(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(intent.getIntExtra("nid",1));
-
-
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(intent.getIntExtra("nid", 0));
     }
 
-    private void arriveLocation() {
-        Log.i(Tag, "到达地点");
-
-
-    }
 //备用方法
 //    private void Jingying() {
 //        Log.i(Tag, "管理静音模式");

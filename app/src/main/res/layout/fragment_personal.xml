@@ -21,8 +21,8 @@
 
     <EditText
         android:id="@+id/editTextText"
-        android:layout_width="152dp"
-        android:layout_height="48dp"
+        android:layout_width="79dp"
+        android:layout_height="60dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="84dp"
@@ -30,6 +30,7 @@
         android:inputType="text"
         android:text="李梓扬"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,17 +40,17 @@
         android:layout_height="29dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="28dp"
-        android:text="TextView"
+        android:text="学号：20301146"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/editTextText"
         tools:text="20301146@bjtu.edu.cn" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="377dp"
-        android:layout_height="456dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="76dp"
+        android:layout_width="382dp"
+        android:layout_height="393dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="128dp"
         android:orientation="vertical"
         android:showDividers="middle"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -68,9 +69,10 @@
             android:layout_height="55dp"
             android:layout_marginTop="101dp"
             android:checked="true"
+            android:onClick="click_send1"
             android:text="进出教学楼控制勿扰"
-            android:thumbTint="@color/blue"
-            android:trackTint="@color/blue" />
+            android:thumbTint="@color/switch_thumb_blue"
+            android:trackTint="@color/switch_track_default" />
 
         <View
             android:layout_width="match_parent"
@@ -82,9 +84,10 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:checked="true"
+            android:onClick="click_send2"
             android:text="进出图书馆控制勿扰"
-            android:thumbTint="@color/blue"
-            android:trackTint="@color/blue" />
+            android:thumbTint="@color/switch_thumb_blue"
+            android:trackTint="@color/switch_track_default" />
 
         <View
             android:layout_width="match_parent"
@@ -96,9 +99,10 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:checked="true"
+            android:onClick="click_send3"
             android:text="是否需要提示休息"
-            android:thumbTint="@color/blue"
-            android:trackTint="@color/blue" />
+            android:thumbTint="@color/switch_thumb_blue"
+            android:trackTint="@color/switch_track_default" />
 
         <View
             android:layout_width="match_parent"
@@ -110,23 +114,15 @@
             android:layout_width="match_parent"
             android:layout_height="58dp"
             android:checked="true"
+            android:onClick="click_send4"
             android:text="是否提醒开启图书馆预订"
-            android:thumbTint="@color/blue"
-            android:trackTint="@color/blue" />
+            android:thumbTint="@color/switch_thumb_blue"
+            android:trackTint="@color/switch_track_default" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#CCCCCC" />
-
-        <Switch
-            android:id="@+id/switch5"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:checked="true"
-            android:text="是否允许弹窗型通知"
-            android:thumbTint="@color/blue"
-            android:trackTint="@color/blue" />
 
         <View
             android:layout_width="match_parent"
@@ -137,16 +133,16 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        android:onClick="click_send"
+        android:layout_width="245dp"
+        android:layout_height="57dp"
+        android:layout_marginBottom="84dp"
+        android:gravity="center"
+        android:text="退出"
+        android:onClick="exit_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
